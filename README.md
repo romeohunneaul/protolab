@@ -16,21 +16,24 @@ Works with Next.js App Router (15+) and React 19.
 npm i -D github:romeohunneaul/protolab
 ```
 
-The package ships TypeScript source. Tell Next to compile it:
+Then, from the project root:
 
-```ts
-// next.config.ts
-const nextConfig = { transpilePackages: ["@romeohunneaul/protolab"] };
+```bash
+npx protolab-init
 ```
 
-Optional: `protolab.config.json` at the project root. Defaults shown.
+It writes the manifest (`src/lab/manifest.ts`), the two pages (`/lab`, `/lab/p/[slug]`),
+`protolab.config.json`, and adds `transpilePackages: ["@romeohunneaul/protolab"]` to your Next
+config (the package ships TypeScript source). Existing files are kept and reported. Paths are
+read from `protolab.config.json` if you create it first (defaults shown):
 
 ```json
 { "protosDir": "src/lab/protos", "manifest": "src/lab/manifest.ts",
   "componentsDir": "src/components/ui", "basePath": "/lab" }
 ```
 
-## Wire three files
+<details>
+<summary>What protolab-init writes, if you prefer to wire it by hand</summary>
 
 **The manifest** — the single source of truth, yours to own:
 
@@ -83,9 +86,12 @@ Want an annotation toolbar in dev (e.g. [agentation](https://github.com/benjitay
 project and pass it: `<ProtoView … annotation={<LabAnnotation />} />` with your own `LabAnnotation`
 that returns `null` in production. The package stays free of that dependency.
 
+</details>
+
 ## Use
 
 ```bash
+npx protolab-init                                              # once: wire the lab
 npx protolab-new <slug> "<Name>" "<Author>" "<Description>"   # scaffold + register
 npx protolab-skills                                            # copy the skills into .claude/skills/
 ```
@@ -107,7 +113,7 @@ Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Re
 | Folder | What |
 |---|---|
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
-| `bin/` | `protolab-new`, `protolab-skills` |
+| `bin/` | `protolab-init`, `protolab-new`, `protolab-skills` |
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
 | `examples/` | a minimal Next app showing the engine — to come |
 
