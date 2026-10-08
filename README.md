@@ -79,6 +79,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 }
 ```
 
+Want an annotation toolbar in dev (e.g. [agentation](https://github.com/benjitaylor/agentation))? Install it in your
+project and pass it: `<ProtoView … annotation={<LabAnnotation />} />` with your own `LabAnnotation`
+that returns `null` in production. The package stays free of that dependency.
+
 ## Use
 
 ```bash
@@ -95,9 +99,8 @@ Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Re
 |---|---|
 | `defineProtos`, `findProto`, `Proto` | type the manifest, look a proto up |
 | `LabDashboard` | the index page body, server component |
-| `ProtoView` | one proto inside its axes, with the switcher and the dev-only annotation toolbar |
+| `ProtoView` | one proto inside its axes, with the switcher. Optional `annotation` prop for a dev-only toolbar the host provides |
 | `VariantProvider`, `VariantSwitcher`, `useAxis`, `Axis` | the axes model, if you compose your own page |
-| `LabAnnotation` | wraps [agentation](https://github.com/benjitaylor/agentation) when installed (optional peer); renders nothing in production |
 
 ## Layout of this repo
 

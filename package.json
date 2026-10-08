@@ -5,7 +5,11 @@
   "license": "MIT",
   "type": "module",
   "repository": "github:romeohunneaul/protolab",
-  "files": ["src", "bin", "skills"],
+  "files": [
+    "src",
+    "bin",
+    "skills"
+  ],
   "exports": {
     ".": "./src/index.ts"
   },
@@ -15,10 +19,6 @@
   },
   "peerDependencies": {
     "next": ">=15",
-    "react": ">=19",
-    "agentation": "*"
-  },
-  "peerDependenciesMeta": {
-    "agentation": { "optional": true }
+    "react": ">=19"
   }
 }

@@ -1,0 +1,1 @@
+{ "protosDir": "src/lab/protos", "manifest": "src/lab/manifest.ts", "componentsDir": "src/components/ui", "basePath": "/lab" }
