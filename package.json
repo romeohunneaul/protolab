@@ -1,0 +1,9 @@
+{
+  "name": "@romeohunneaul/protolab",
+  "version": "0.0.0",
+  "description": "From a feature intent to a running screen, built with the host project's own components.",
+  "license": "MIT",
+  "private": false,
+  "files": ["src"],
+  "repository": "github:romeohunneaul/protolab"
+}
