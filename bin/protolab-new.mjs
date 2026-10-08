@@ -62,8 +62,8 @@ mkdirSync(protoDir, { recursive: true });
 writeFileSync(join(protoDir, "index.tsx"), component);
 
 // 2. Register in the manifest, before the array's closing bracket
-const marker = "\n];";
-const at = manifest.lastIndexOf(marker);
+// The array ends with `]);` (defineProtos) or `];` (a plain export). Insert before either.
+const at = Math.max(manifest.lastIndexOf("\n]);"), manifest.lastIndexOf("\n];"));
 if (at === -1) fail(`could not find the end of the protos array in ${config.manifest} (was its shape changed?)`);
 
 const importPath = posix.join(...relative(dirname(manifestPath), protoDir).split(/[\\/]/));
