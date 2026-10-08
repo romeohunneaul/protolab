@@ -1,9 +1,24 @@
 {
   "name": "@romeohunneaul/protolab",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "From a feature intent to a running screen, built with the host project's own components.",
   "license": "MIT",
-  "private": false,
-  "files": ["src"],
-  "repository": "github:romeohunneaul/protolab"
+  "type": "module",
+  "repository": "github:romeohunneaul/protolab",
+  "files": ["src", "bin", "skills"],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "bin": {
+    "protolab-new": "./bin/protolab-new.mjs",
+    "protolab-skills": "./bin/protolab-skills.mjs"
+  },
+  "peerDependencies": {
+    "next": ">=15",
+    "react": ">=19",
+    "agentation": "*"
+  },
+  "peerDependenciesMeta": {
+    "agentation": { "optional": true }
+  }
 }
