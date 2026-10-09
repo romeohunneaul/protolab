@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // Wire protolab into a Next.js App Router project: the manifest, the lab index page, the proto
-// page, protolab.config.json, and `transpilePackages` in next.config.ts. Existing files are left
+// page, protolab.config.json, `transpilePackages` in next.config.ts, and the Tailwind `@source`
+// for the engine in the global CSS. Existing files are left
 // alone and reported. Run from the project root; re-runnable.
 //
 // Usage: protolab-init
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 
 const root = process.cwd();
 const config = {
@@ -83,6 +84,21 @@ if (nextConfig && readFileSync(nextConfig, "utf8").includes("@romeohunneaul/prot
   console.log(`✓ patched ${nextConfig.slice(root.length + 1)} (${line})`);
 } else {
   console.log(`! add to your Next config: ${line}`);
+}
+
+// Tailwind v4 skips node_modules, so the engine's classes (panel, dashboard) need an @source.
+const css = [join(appDir, "globals.css"), "src/styles/globals.css", "styles/globals.css"]
+  .map((f) => join(root, f))
+  .find((f) => existsSync(f) && readFileSync(f, "utf8").includes("tailwindcss"));
+const engineSrc = join(root, "node_modules/@romeohunneaul/protolab/src");
+if (!css) {
+  console.log(`! add to your Tailwind CSS entry: @source "<path to>/node_modules/@romeohunneaul/protolab/src";`);
+} else if (readFileSync(css, "utf8").includes("@romeohunneaul/protolab")) {
+  console.log(`= kept    ${css.slice(root.length + 1)} (@source already set)`);
+} else {
+  const source = `@source "${relative(dirname(css), engineSrc)}";`;
+  writeFileSync(css, readFileSync(css, "utf8").replace(/(@import ["']tailwindcss["'];?)/, `$1\n${source}`));
+  console.log(`✓ patched ${css.slice(root.length + 1)} (${source})`);
 }
 
 console.log(`

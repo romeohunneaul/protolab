@@ -8,7 +8,8 @@ served at `/lab/p/<slug>`, with **axes** (state, layout, theme) switchable from 
 panel and encoded in the URL so a link restores the exact combination. Three agent skills ship
 with the package: create a proto, add an axis, read your design system before touching anything.
 
-Works with Next.js App Router (15+) and React 19.
+Works with Next.js App Router (15+), React 19 and Tailwind CSS v4 (the panel and the dashboard
+are styled with Tailwind classes).
 
 ## Install
 
@@ -24,7 +25,15 @@ npx protolab-init
 
 It writes the manifest (`src/lab/manifest.ts`), the two pages (`/lab`, `/lab/p/[slug]`),
 `protolab.config.json`, and adds `transpilePackages: ["@romeohunneaul/protolab"]` to your Next
-config (the package ships TypeScript source). Existing files are kept and reported. Paths are
+config (the package ships TypeScript source), and an `@source` for the engine to your Tailwind
+CSS entry (Tailwind skips `node_modules`, so the panel would render unstyled without it):
+
+```css
+@import "tailwindcss";
+@source "../../node_modules/@romeohunneaul/protolab/src";
+```
+
+Existing files are kept and reported. Paths are
 read from `protolab.config.json` if you create it first (defaults shown):
 
 ```json
@@ -115,7 +124,13 @@ Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Re
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
 | `bin/` | `protolab-init`, `protolab-new`, `protolab-skills` |
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
-| `examples/` | a minimal Next app showing the engine — to come |
+| `examples/next/` | a minimal Next app wired to the local engine (`file:../..`): edits in `src/` show live |
+
+Run the example:
+
+```bash
+cd examples/next && npm install && npm run dev   # → http://localhost:3000/lab
+```
 
 ## License
 
