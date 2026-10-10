@@ -118,5 +118,5 @@ if (existsSync(pkgPath)) {
 console.log(`
 Next:
   npx protolab-skills                                   # agent skills into .claude/skills/
-  npx protolab-new <slug> "<Name>" "<Author>" "<Desc>"  # first proto
-  npm run update:protolab                               # later: follow the engine → ${config.basePath}/p/<slug>`);
+  npx protolab-new <slug> "<Name>" "<Author>" "<Desc>"  # first proto → ${config.basePath}/p/<slug>
+  npm run update:protolab                               # later: follow the engine`);
