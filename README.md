@@ -87,7 +87,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const { slug } = await params;
   const proto = findProto(PROTOS, slug);
   if (!proto) notFound();
-  return <ProtoView proto={proto} Component={COMPONENTS[slug]} />;
+  return <ProtoView proto={proto} Component={COMPONENTS[slug]} protos={PROTOS} basePath="/lab" />;
 }
 ```
 
@@ -106,7 +106,38 @@ npx protolab-skills                                            # copy the skills
 ```
 
 Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Read an axis with
-`useAxis("state")`; declare axes on the manifest entry (see the `protolab-variant` skill).
+`useAxis("state")`; declare axes on the manifest entry (see the `protolab-variant` skill). For a
+proto with several views, declare `screens` on the entry and move with
+`const { screen, go } = useScreen()`: each screen gets its own URL (`?screen=<key>`) and the
+browser's Back button walks the flow.
+
+Every proto page carries the lab panel (bottom right, collapsible): back to the index, jump to
+another proto, then the proto's screen and axes, and a link that restores the exact combination.
+
+## Comments
+
+Protolab ships no comment layer: [Vercel Comments](https://vercel.com/docs/comments) covers it
+for teams. Comments are on by default on every preview deployment, with no code: pin a comment
+on an element (`c`), reply, resolve. Viewers of a shared link without access to the Vercel
+project see the page, not the comments. Every commenter needs a Vercel account.
+
+To comment on `localhost` too, wire the toolbar in the host (`npm i @vercel/toolbar`, then
+`vercel link`):
+
+```ts
+// next.config.ts
+import createWithVercelToolbar from "@vercel/toolbar/plugins/next";
+export default createWithVercelToolbar()(nextConfig);
+```
+
+```tsx
+// app/layout.tsx, inside <body>
+import { VercelToolbar } from "@vercel/toolbar/next";
+{process.env.NODE_ENV === "development" && <VercelToolbar />}
+```
+
+Read and close comments from the terminal: `vercel comments --json`,
+`vercel comments inspect <thread> --context`, `vercel comments resolve <thread> -m "…"`.
 
 ## What's in the box
 
@@ -114,8 +145,9 @@ Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Re
 |---|---|
 | `defineProtos`, `findProto`, `Proto` | type the manifest, look a proto up |
 | `LabDashboard` | the index page body, server component |
-| `ProtoView` | one proto inside its axes, with the switcher. Optional `annotation` prop for a dev-only toolbar the host provides |
-| `VariantProvider`, `VariantSwitcher`, `useAxis`, `Axis` | the axes model, if you compose your own page |
+| `ProtoView` | one proto inside its axes and screens, with the lab panel. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
+| `useAxis`, `useScreen`, `Axis`, `Screen` | read an axis; read and change the current screen |
+| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page |
 
 ## Layout of this repo
 
