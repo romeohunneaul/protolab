@@ -139,6 +139,29 @@ import { VercelToolbar } from "@vercel/toolbar/next";
 Read and close comments from the terminal: `vercel comments --json`,
 `vercel comments inspect <thread> --context`, `vercel comments resolve <thread> -m "…"`.
 
+## Staying up to date
+
+Protolab is installed from GitHub, so npm pins the exact commit in your `package-lock.json`.
+`git pull` in your project does not move it, and neither does `npm update`. To follow the engine:
+
+```bash
+npm run update:protolab
+```
+
+`protolab-init` adds that script to your `package.json`. It runs:
+
+```bash
+npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && npx protolab-skills
+```
+
+The first half moves the pin to the latest commit on `main`. The second recopies the agent skills
+into `.claude/skills/`: they are copies, so they do not follow the package on their own. Commit
+`package-lock.json` and `.claude/skills/` afterwards, so every clone of your project runs the same
+version.
+
+There are no tagged releases yet: `main` is the version. Once releases are tagged, pin a range
+(`github:romeohunneaul/protolab#semver:^0.2.0`) and let a bot such as Renovate open the update PRs.
+
 ## What's in the box
 
 | Export | What |

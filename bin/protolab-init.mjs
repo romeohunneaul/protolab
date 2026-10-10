@@ -101,7 +101,22 @@ if (!css) {
   console.log(`✓ patched ${css.slice(root.length + 1)} (${source})`);
 }
 
+// package.json: one script to follow the engine (bump to the latest commit, refresh the skills).
+const pkgPath = join(root, "package.json");
+if (existsSync(pkgPath)) {
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+  pkg.scripts ??= {};
+  if (pkg.scripts["update:protolab"]) {
+    console.log("= kept    package.json (update:protolab already set)");
+  } else {
+    pkg.scripts["update:protolab"] = "npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && protolab-skills";
+    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+    console.log("✓ patched package.json (script update:protolab)");
+  }
+}
+
 console.log(`
 Next:
   npx protolab-skills                                   # agent skills into .claude/skills/
-  npx protolab-new <slug> "<Name>" "<Author>" "<Desc>"  # first proto → ${config.basePath}/p/<slug>`);
+  npx protolab-new <slug> "<Name>" "<Author>" "<Desc>"  # first proto
+  npm run update:protolab                               # later: follow the engine → ${config.basePath}/p/<slug>`);
