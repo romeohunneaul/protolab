@@ -32,9 +32,14 @@ export function LabDashboard({
                 <span className="font-mono text-sm text-neutral-400">{p.slug}</span>
               </div>
               <p className="text-sm text-neutral-600">{p.description}</p>
-              {p.axes?.length ? (
+              {p.axes?.length || p.screens?.length ? (
                 <span className="mt-2 flex flex-wrap gap-1.5">
-                  {p.axes.map((a) => (
+                  {p.screens?.length ? (
+                    <span className="rounded-full border px-2 py-0.5 text-xs text-neutral-600">
+                      {`Screens ×${p.screens.length}`}
+                    </span>
+                  ) : null}
+                  {(p.axes ?? []).map((a) => (
                     <span key={a.key} className="rounded-full border px-2 py-0.5 text-xs text-neutral-600">
                       {`${a.label} ×${a.values.length}`}
                     </span>

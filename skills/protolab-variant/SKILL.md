@@ -39,8 +39,33 @@ Les chemins (`manifest`, `protosDir`) viennent de `protolab.config.json` à la r
    ```
    Le composant doit être `"use client"` (`useAxis` est un hook client).
 
-Le switcher (`VariantSwitcher`, rendu par `ProtoView`) affiche la liste déroulante
+Le panneau du lab (`LabPanel`, rendu par `ProtoView`) affiche la liste déroulante
 automatiquement : rien à câbler dans l'UI.
+
+## Axe ou écran ?
+
+Un axe est un **mode** que le relecteur bascule depuis le panneau (vide, erreur, compact). Un
+écran est une **vue** entre lesquelles le proto navigue lui-même (liste → détail, étape 1 →
+étape 2). Si le proto a plusieurs vues, déclare des écrans, pas un axe :
+
+1. Dans le manifest, sur l'entrée du proto :
+   ```ts
+   screens: [
+     { key: "list", label: "List" },
+     { key: "detail", label: "Detail" },
+   ],
+   ```
+   Le premier écran est celui d'arrivée.
+2. Dans le composant :
+   ```ts
+   import { useScreen } from "@romeohunneaul/protolab";
+   const { screen, go } = useScreen();
+   // screen === "detail" ? … ; onClick={() => go("detail")}
+   ```
+
+Chaque écran a son URL (`?screen=<key>`) : un rechargement ou un lien partagé ramène au même
+écran, et le bouton Retour du navigateur remonte le parcours. Le panneau liste les écrans pour
+qu'un relecteur y saute directement. Les axes restent orthogonaux aux écrans.
 
 ## Règles
 

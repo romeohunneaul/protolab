@@ -48,6 +48,7 @@ const component = `"use client";
 
 // Prototype: ${name}. Reuses the project's real components from ${config.componentsDir}/ — never restyle them.
 // To react to a variant axis: const state = useAxis("state");  (add axes with protolab-variant)
+// Several views (list → detail)? Declare screens on the entry, then: const { screen, go } = useScreen();
 
 export default function ${className}() {
   return (

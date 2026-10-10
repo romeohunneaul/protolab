@@ -69,7 +69,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const { slug } = await params;
   const proto = findProto(PROTOS, slug);
   if (!proto) notFound();
-  return <ProtoView proto={proto} Component={COMPONENTS[slug]} />;
+  return <ProtoView proto={proto} Component={COMPONENTS[slug]} protos={PROTOS} basePath="${config.basePath}" />;
 }
 `);
 

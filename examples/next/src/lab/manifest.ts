@@ -16,4 +16,21 @@ export const PROTOS = defineProtos([
     ],
     load: () => import("./protos/hello"),
   },
+  {
+    slug: "flow",
+    name: "Flow",
+    author: "protolab",
+    description: "Two screens the proto moves between with useScreen(), plus one axis. Back walks the flow.",
+    screens: [
+      { key: "list", label: "List" },
+      { key: "detail", label: "Detail" },
+    ],
+    axes: [
+      { key: "density", label: "Density", values: [
+        { id: "comfortable", label: "Comfortable" },
+        { id: "compact", label: "Compact" },
+      ] },
+    ],
+    load: () => import("./protos/flow"),
+  },
 ]);

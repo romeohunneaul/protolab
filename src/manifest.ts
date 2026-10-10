@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { Axis } from "./variants";
+import type { Axis, Screen } from "./variants";
 
 /** One prototype. `load` is a dynamic import so a proto ships only when its page is opened. */
 export type Proto = {
@@ -8,6 +8,8 @@ export type Proto = {
   author: string;
   description: string;
   axes?: Axis[];
+  /** Views of a multi-screen proto; the first is the landing one. */
+  screens?: Screen[];
   load: () => Promise<{ default: ComponentType }>;
 };
 

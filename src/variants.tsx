@@ -1,81 +1,66 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useCallback, useContext, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 /** A dimension of a proto: a state, a layout, a theme. Values are orthogonal — any combination is valid. */
 export type Axis = { key: string; label: string; values: { id: string; label: string }[]; default?: string };
 
-const AxesContext = createContext<Axis[]>([]);
+/** One view of a multi-screen proto (list, detail, settings…). The proto moves with useScreen().go. */
+export type Screen = { key: string; label: string };
 
-/** Wrap a proto in its axes. The switcher and every useAxis() read from here. */
-export function VariantProvider({ axes, children }: { axes: Axis[]; children: ReactNode }) {
-  return <AxesContext.Provider value={axes}>{children}</AxesContext.Provider>;
+type Lab = { axes: Axis[]; screens: Screen[] };
+const LabContext = createContext<Lab>({ axes: [], screens: [] });
+
+/** Wrap a proto in its axes and screens. The panel, useAxis() and useScreen() read from here. */
+export function VariantProvider({ axes, screens = [], children }: Lab & { children: ReactNode }) {
+  return <LabContext.Provider value={{ axes, screens }}>{children}</LabContext.Provider>;
 }
 
-const paramKey = (key: string) => `a.${key}`;
+export const useLab = () => useContext(LabContext);
 
-/** Read the current value of an axis. The URL is the source of truth, so a shared link restores the exact combination. */
-export function useAxis(key: string): string {
-  const axes = useContext(AxesContext);
-  const params = useSearchParams();
-  const axis = axes.find((a) => a.key === key);
-  return params.get(paramKey(key)) ?? axis?.default ?? axis?.values[0]?.id ?? "";
-}
+type Params = { get(name: string): string | null };
+export const axisParam = (key: string) => `a.${key}`;
+export const SCREEN_PARAM = "screen";
 
-/** Dropdowns for every axis, synced to the URL without a reload (state and scroll survive). */
-export function VariantSwitcher() {
-  const axes = useContext(AxesContext);
+/** The URL value when it is a known one, else the default: a stale or mistyped link never yields an unknown state. */
+export const axisValue = (axis: Axis, params: Params) => {
+  const id = params.get(axisParam(axis.key));
+  return id && axis.values.some((v) => v.id === id) ? id : (axis.default ?? axis.values[0]?.id ?? "");
+};
+export const screenValue = (screens: Screen[], params: Params) => {
+  const key = params.get(SCREEN_PARAM);
+  return key && screens.some((s) => s.key === key) ? key : (screens[0]?.key ?? "");
+};
+
+/** Write one search param without a reload. Axes replace the history entry; screens push one, so Back walks the flow. */
+export function useSetParam() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-
-  const value = useCallback(
-    (axis: Axis) => params.get(paramKey(axis.key)) ?? axis.default ?? axis.values[0]?.id ?? "",
-    [params],
+  return useCallback(
+    (key: string, value: string, history: "push" | "replace" = "replace") => {
+      const next = new URLSearchParams(params);
+      next.set(key, value);
+      router[history](`${pathname}?${next}`, { scroll: history === "push" });
+    },
+    [router, pathname, params],
   );
-  const set = (axis: Axis, id: string) => {
-    const next = new URLSearchParams(params);
-    next.set(paramKey(axis.key), id);
-    router.replace(`${pathname}?${next}`, { scroll: false });
-  };
-  const copy = () => navigator.clipboard.writeText(location.href);
+}
 
-  const current = useMemo(
-    () => axes.map((a) => `${a.label}: ${a.values.find((v) => v.id === value(a))?.label}`).join(" · "),
-    [axes, value],
-  );
-  if (axes.length === 0) return null;
+/** Read the current value of an axis. The URL is the source of truth, so a shared link restores the exact combination. */
+export function useAxis(key: string): string {
+  const { axes } = useLab();
+  const params = useSearchParams();
+  const axis = axes.find((a) => a.key === key);
+  return axis ? axisValue(axis, params) : "";
+}
 
-  return (
-    <aside className="fixed bottom-4 left-4 z-50 w-72 rounded-xl bg-[#1c1c1c] p-3 text-white shadow-xl" data-lab-ui>
-      <div className="mb-2 flex items-center justify-between">
-        <strong className="text-xs uppercase tracking-wide text-neutral-400">Variants</strong>
-        <button type="button" onClick={copy} className="text-xs text-neutral-300 hover:text-white">
-          Copy link
-        </button>
-      </div>
-      <div className="grid gap-2">
-        {axes.map((axis) => (
-          <label key={axis.key} className="grid gap-0.5 text-[11px] text-neutral-400">
-            {axis.label}
-            <select
-              value={value(axis)}
-              onChange={(e) => set(axis, e.target.value)}
-              className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-white"
-            >
-              {axis.values.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        ))}
-      </div>
-      <p className="mt-2 truncate text-[10px] text-neutral-500" title={current}>
-        {current}
-      </p>
-    </aside>
-  );
+/** The current screen, and `go(key)` to move to another one. Each screen has its own URL (`?screen=`). */
+export function useScreen(): { screen: string; go: (key: string) => void } {
+  const { screens } = useLab();
+  const params = useSearchParams();
+  const set = useSetParam();
+  const go = useCallback((key: string) => set(SCREEN_PARAM, key, "push"), [set]);
+  return { screen: screenValue(screens, params), go };
 }
