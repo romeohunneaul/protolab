@@ -17,6 +17,15 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   screens or more), the scenarios and the `Off design system` mark, and an empty state.
 - `examples/next`: `flow` extended with a checkout in three steps, a structural `layout` axis
   for the list and a `volume` scenario.
+- `protolab-check`: validates the manifest against the contract (twelve rules, every error
+  listed in manifest order, exit 1), with `@romeohunneaul/protolab` stubbed so the engine is
+  never loaded. Needs Node 22.6+ (type stripping).
+- `protolab-init`: the design-system step (detects `.storybook/` and `components.json`, asks
+  where the design system is documented and which libraries are allowed outside it, writes the
+  `ds` block, patches an existing config without it); writes the new proto page shape (server
+  page plus `proto.tsx`); signals a v1 page instead of writing next to it; refuses to run
+  without `package.json` or an `app/` folder; the `Next:` block names `protolab-check` and the
+  same-origin iframe requirement. All three CLIs refuse a `protolab.config.json` that is not JSON.
 
 ### Changed
 
