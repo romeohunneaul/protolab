@@ -47,6 +47,7 @@ const q = (s) => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 const component = `"use client";
 
 // Prototype: ${name}. Reuses the project's real components from ${config.componentsDir}/ — never restyle them.
+// Conventions: .claude/rules/proto.md (installed by protolab-skills).
 // To react to a variant axis: const state = useAxis("state");  (add axes with protolab-variant)
 // Several views (list → detail)? Declare screens on the entry, then: const { screen, go } = useScreen();
 

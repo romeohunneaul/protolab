@@ -102,7 +102,7 @@ that returns `null` in production. The package stays free of that dependency.
 ```bash
 npx protolab-init                                              # once: wire the lab
 npx protolab-new <slug> "<Name>" "<Author>" "<Description>"   # scaffold + register
-npx protolab-skills                                            # copy the skills into .claude/skills/
+npx protolab-skills                                            # skills into .claude/skills/, proto rules into .claude/rules/
 ```
 
 Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Read an axis with
@@ -179,6 +179,7 @@ There are no tagged releases yet: `main` is the version. Once releases are tagge
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
 | `bin/` | `protolab-init`, `protolab-new`, `protolab-skills` |
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
+| `rules/` | `proto.md`, what a proto is and respects; installed into consumers' `.claude/rules/` by `protolab-skills`, with `paths` set from `protosDir` |
 | `examples/next/` | a minimal Next app wired to the local engine (`file:../..`): edits in `src/` show live |
 
 Run the example:

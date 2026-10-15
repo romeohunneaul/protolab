@@ -9,6 +9,9 @@ Objectif : passer d'une intention de feature à un écran qui tourne à `<basePa
 **réutilisant les composants du projet**. La métrique qui compte est le temps entre « j'ai une
 idée » et « je la vois à l'écran », pas la cérémonie.
 
+**PRÉREQUIS :** lire `.claude/rules/proto.md` en entier (installée par `protolab-skills`) : la
+structure, le nommage et les règles d'un proto y sont ; cette skill porte le comment.
+
 > **Principe.** Toute règle est payée par l'agent, pas par l'utilisateur. Ne bloque jamais sur
 > un défaut que tu peux corriger seul. Au moindre arbitrage produit → `AskUserQuestion`.
 
