@@ -178,6 +178,7 @@ There are no tagged releases yet: `main` is the version. Once releases are tagge
 |---|---|
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
 | `bin/` | `protolab-init`, `protolab-new`, `protolab-skills` |
+| `test/` | `bin.test.mjs` (node:test) and `smoke.spec.ts` (Playwright) |
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
 | `examples/next/` | a minimal Next app wired to the local engine (`file:../..`): edits in `src/` show live |
 
@@ -186,6 +187,18 @@ Run the example:
 ```bash
 cd examples/next && npm install && npm run dev   # → http://localhost:3000/lab
 ```
+
+## Verify
+
+```bash
+cd examples/next && npm ci && cd ../..   # once
+npm run check                            # bin tests, typecheck, example build, browser smoke
+```
+
+`npm test` runs `node:test` on the CLIs against a throwaway host. `npm run typecheck` and
+`npm run build:example` type and build `examples/next`. `npm run smoke` serves the built example
+and drives it with Playwright: `/lab`, one proto, an axis switch, the URL, three sizes. It uses
+the Chromium that Playwright finds on the machine (`npx playwright install chromium` if none).
 
 ## License
 
