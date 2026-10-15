@@ -1,32 +1,33 @@
-import { Suspense, type ComponentType, type ReactNode } from "react";
+"use client";
+
+import { Suspense, type ReactNode } from "react";
 import type { Proto } from "./manifest";
 import { LabPanel } from "./panel";
-import { VariantProvider } from "./variants";
+import { VariantProvider, componentOf } from "./variants";
 
 /**
- * Renders one proto inside its axes and screens, with the lab panel. The host page resolves
- * `Component` (with `next/dynamic` at module scope), passes the manifest as `protos` so the panel
- * can jump between protos, and may pass a dev-only `annotation` toolbar (e.g. agentation) that the
- * package deliberately does not depend on.
+ * Renders one proto inside its axes, screens and scenarios, with the lab panel. A client
+ * component: the host page renders it from a client module that imports the manifest, so the
+ * loaders (the proto, the structural values, the scenario data) never cross the server boundary.
+ * Pass the manifest as `protos` so the panel can jump between protos, `basePath` if not `/lab`,
+ * and an optional dev-only `annotation` toolbar the package deliberately does not depend on.
  */
 export function ProtoView({
   proto,
-  Component,
   protos = [],
   basePath = "/lab",
   annotation,
 }: {
   proto: Proto;
-  Component: ComponentType;
   protos?: Proto[];
   basePath?: string;
   annotation?: ReactNode;
 }) {
-  // Only plain data crosses into the client panel: `load` is a function.
-  const ref = ({ slug, name }: Proto) => ({ slug, name });
+  const Component = componentOf(proto.load);
+  const ref = ({ slug, name, offDs }: Proto) => ({ slug, name, offDs });
   return (
     <Suspense fallback={null}>
-      <VariantProvider axes={proto.axes ?? []} screens={proto.screens ?? []}>
+      <VariantProvider axes={proto.axes} screens={proto.screens} scenarios={proto.scenarios}>
         <Component />
         <LabPanel proto={ref(proto)} protos={protos.map(ref)} basePath={basePath} />
       </VariantProvider>

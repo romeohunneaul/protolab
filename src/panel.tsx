@@ -3,21 +3,23 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SCREEN_PARAM, axisParam, axisValue, screenValue, useLab, useSetParam } from "./variants";
+import { SCREEN_PARAM, STEP_PARAM, axisParam, axisValue, scenarioParam, scenarioValue, screenValue, stepValue, useLab, useWriteParams } from "./variants";
 
-type Ref = { slug: string; name: string };
+type Ref = { slug: string; name: string; offDs?: boolean };
 type Option = { id: string; label: string };
 
 /**
  * The lab chrome on a proto page: back to the index, jump to another proto, then this proto's
- * screen and axes. Always rendered, even without axes, so every proto has a way out; collapsible
+ * screen and step, axes and scenarios. Always rendered, even without axes, so every proto has a way out; collapsible
  * because it floats over the proto.
  */
 export function LabPanel({ proto, protos = [], basePath = "/lab" }: { proto: Ref; protos?: Ref[]; basePath?: string }) {
-  const { axes, screens } = useLab();
+  const { axes, screens, scenarios } = useLab();
   const params = useSearchParams();
   const router = useRouter();
-  const set = useSetParam();
+  const write = useWriteParams();
+  const screen = screens.find((s) => s.key === screenValue(screens, params));
+  const steps = screen?.steps ?? [];
   const [open, setOpen] = useState(true);
 
   const button = "text-neutral-300 hover:text-white";
@@ -34,9 +36,10 @@ export function LabPanel({ proto, protos = [], basePath = "/lab" }: { proto: Ref
     );
   }
 
-  const current = axes
-    .map((a) => `${a.label}: ${a.values.find((v) => v.id === axisValue(a, params))?.label}`)
-    .join(" · ");
+  const current = [
+    ...axes.map((a) => `${a.label}: ${a.values.find((v) => v.id === axisValue(a, params))?.label}`),
+    ...scenarios.map((s) => `${s.label}: ${s.values.find((v) => v.id === scenarioValue(s, params))?.label}`),
+  ].join(" · ");
 
   return (
     <aside className="fixed bottom-4 right-4 z-50 w-72 rounded-xl bg-[#1c1c1c] p-3 text-white shadow-xl" data-lab-ui>
@@ -53,6 +56,7 @@ export function LabPanel({ proto, protos = [], basePath = "/lab" }: { proto: Ref
           </button>
         </span>
       </div>
+      {proto.offDs && <p className="mb-2 text-[10px] uppercase tracking-wide text-amber-400">Off design system</p>}
       <div className="grid gap-2">
         {protos.length > 1 && (
           <Field
@@ -67,7 +71,15 @@ export function LabPanel({ proto, protos = [], basePath = "/lab" }: { proto: Ref
             label="Screen"
             value={screenValue(screens, params)}
             options={screens.map((s) => ({ id: s.key, label: s.label }))}
-            onChange={(key) => set(SCREEN_PARAM, key, "push")}
+            onChange={(key) => write({ [SCREEN_PARAM]: key, [STEP_PARAM]: null }, "push")}
+          />
+        )}
+        {steps.length > 0 && (
+          <Field
+            label="Step"
+            value={String(stepValue(screen, params))}
+            options={steps.map((label, i) => ({ id: String(i + 1), label: `${i + 1}. ${label}` }))}
+            onChange={(n) => write({ [STEP_PARAM]: n }, "push")}
           />
         )}
         {axes.map((axis) => (
@@ -76,7 +88,17 @@ export function LabPanel({ proto, protos = [], basePath = "/lab" }: { proto: Ref
             label={axis.label}
             value={axisValue(axis, params)}
             options={axis.values}
-            onChange={(id) => set(axisParam(axis.key), id)}
+            onChange={(id) => write({ [axisParam(axis.key)]: id }, "replace")}
+          />
+        ))}
+        {scenarios.length > 0 && <p className="mt-1 text-[10px] uppercase tracking-wide text-neutral-500">Scenarios</p>}
+        {scenarios.map((scenario) => (
+          <Field
+            key={scenario.key}
+            label={scenario.label}
+            value={scenarioValue(scenario, params)}
+            options={scenario.values}
+            onChange={(id) => write({ [scenarioParam(scenario.key)]: id }, "replace")}
           />
         ))}
       </div>
