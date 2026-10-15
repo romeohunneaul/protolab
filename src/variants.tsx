@@ -21,6 +21,9 @@ export const axisParam = (key: string) => `a.${key}`;
 export const scenarioParam = (key: string) => `s.${key}`;
 export const SCREEN_PARAM = "screen";
 export const STEP_PARAM = "step";
+export const VIEWPORT_PARAM = "v";
+export const COMPARE_PARAM = "compare";
+export const LAB_PARAM = "lab";
 
 const pick = (values: { id: string }[], id: string | null, fallback?: string) =>
   id && values.some((v) => v.id === id) ? id : (fallback ?? values[0]?.id ?? "");
@@ -37,6 +40,19 @@ export const stepValue = (screen: Screen | undefined, params: Params) => {
   const max = screen?.steps?.length ?? 0;
   return Number.isInteger(n) && n >= 1 && n <= max ? n : 1;
 };
+
+/** The viewport size of the link, `<width>x<height>` in pixels; null (free size) when absent or malformed. */
+export const viewportValue = (params: Params): { width: number; height: number } | null => {
+  const m = /^(\d+)x(\d+)$/.exec(params.get(VIEWPORT_PARAM) ?? "");
+  if (!m) return null;
+  const width = Number(m[1]);
+  const height = Number(m[2]);
+  return width > 0 && height > 0 ? { width, height } : null;
+};
+/** The axis the comparison view varies; undefined (simple view) when absent or not an axis of the proto. */
+export const compareValue = (axes: Axis[], params: Params) => axes.find((a) => a.key === params.get(COMPARE_PARAM));
+/** `lab=0`: the clean page, without any lab tool. */
+export const isCleanPage = (params: Params) => params.get(LAB_PARAM) === "0";
 
 /**
  * Write search params in one history entry: a string sets, null deletes. Nothing else in the URL

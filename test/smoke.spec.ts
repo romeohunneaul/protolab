@@ -65,3 +65,71 @@ test("steps: the panel and the proto push one URL per step, a structural axis sw
   await page.goto("/lab/p/flow?screen=checkout&step=7");
   await expect(page.getByRole("heading", { name: "Address" })).toBeVisible(); // out of range falls back to 1
 });
+
+test("viewport: a preset writes the size in the URL and frames the clean page at that size; a gesture inside reports to the lab URL", async ({ page }) => {
+  await page.goto("/lab/p/flow");
+  await page.getByRole("tab", { name: "Viewport" }).click();
+  await page.getByRole("button", { name: /^Phone/ }).click();
+  await expect(page).toHaveURL(/v=390x844/);
+  const frame = page.locator("iframe[data-lab-frame]");
+  await expect(frame).toHaveCount(1);
+  await expect(frame).toHaveAttribute("src", /lab=0/);
+  await expect(frame).toHaveAttribute("src", /^((?!v=).)*$/);
+  const box = await frame.boundingBox();
+  expect(box?.width).toBe(390);
+  expect(box?.height).toBe(844);
+  await expect(page.locator("[data-lab-state]")).toContainText("Phone");
+  // Inside the frame: the clean page, no panel; a click moves the lab URL to the detail screen.
+  const inner = page.frameLocator("iframe[data-lab-frame]");
+  await expect(inner.locator("[data-lab-ui]")).toHaveCount(0);
+  await inner.getByRole("button", { name: /Invoice #1042/ }).click();
+  await expect(page).toHaveURL(/screen=detail/);
+  await expect(page).toHaveURL(/v=390x844/);
+  await expect(inner.getByRole("heading", { name: "Invoice #1042" })).toBeVisible();
+  // Free size removes the param and renders the proto in the page again.
+  await page.getByRole("button", { name: "Free size" }).click();
+  await expect(page).not.toHaveURL(/v=/);
+  await expect(frame).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Invoice #1042" })).toBeVisible();
+});
+
+test("compare: a grid with one clean-page cell per value, the current one marked; Open leaves with that value", async ({ page }) => {
+  await page.goto("/lab/p/flow?a.layout=cards");
+  await page.getByRole("tab", { name: "Compare" }).click();
+  await select(page, "Axis").selectOption("density");
+  await page.getByRole("button", { name: "Compare", exact: true }).click();
+  await expect(page).toHaveURL(/compare=density/);
+  const cells = page.locator("[data-lab-cell]");
+  await expect(cells).toHaveCount(2);
+  await expect(cells.nth(0)).toContainText("Comfortable");
+  await expect(cells.nth(0)).toContainText("current");
+  await expect(cells.nth(1)).toContainText("Compact");
+  await expect(page.locator("[data-lab-cell='compact'] iframe")).toHaveAttribute("src", /a\.density=compact/);
+  await expect(page.locator("[data-lab-cell='compact'] iframe")).toHaveAttribute("src", /a\.layout=cards/);
+  await expect(page.locator("[data-lab-cell='compact'] iframe")).toHaveAttribute("src", /lab=0/);
+  await expect(page.getByRole("tab", { name: "Compare" })).toHaveAttribute("aria-selected", "true");
+  await page.getByRole("tab", { name: "Variants" }).click();
+  await expect(select(page, "Density")).toBeDisabled();
+  await page.locator("[data-lab-cell='compact']").getByRole("button", { name: "Open" }).click();
+  await expect(page).toHaveURL(/a\.density=compact/);
+  await expect(page).not.toHaveURL(/compare=/);
+  await expect(cells).toHaveCount(0);
+  await page.goBack();
+  await expect(page).toHaveURL(/compare=density/);
+  await expect(cells).toHaveCount(2);
+});
+
+test("clean page: no tool, the state kept, the link's size applied; Copy clean link adds lab=0 once", async ({ page }) => {
+  await page.goto("/lab/p/hello?a.state=empty&lab=0");
+  await expect(page.getByText("Nothing here yet.")).toBeVisible();
+  await expect(page.locator("[data-lab-ui]")).toHaveCount(0);
+  await page.goto("/lab/p/hello?lab=1&a.state=empty");
+  await expect(page.locator("[data-lab-ui]")).toBeVisible();
+  await page.getByRole("button", { name: "Copy clean link" }).click();
+  await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toMatch(/lab=0/);
+  expect(copied).not.toMatch(/lab=1/);
+  expect(copied.match(/lab=/g)?.length).toBe(1);
+  expect(copied).toMatch(/a\.state=empty/);
+});
