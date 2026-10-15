@@ -148,9 +148,20 @@ default (the first value unless `default` says otherwise): a stale link never sh
 state. Switching an axis, a scenario or a size replaces the history entry; moving to a screen or
 a step pushes one. Everything a proto v1 declared keeps working: `kind` absent means `state`.
 
-Every proto page carries the lab panel (bottom right, collapsible): back to the index, jump to
-another proto, then the proto's screen, step, axes and scenarios, and a link that restores the
-exact combination.
+Every proto page carries the lab panel: a drawer on the right, collapsible, that leaves the proto
+usable. Its header goes back to the index, jumps to another proto, copies the link (`Copy link`)
+or the clean link (`Copy clean link`, the same page with `?lab=0`: no tool at all, what you send
+outside). Three tabs:
+
+| Tab | What it does | In the URL |
+|---|---|---|
+| `Variants` | one selector per declared screen, step, axis and scenario | `?screen=…&step=…&a.…&s.…` |
+| `Viewport` | `Free size`, the presets `Phone` 390 × 844, `Tablet` 768 × 1024, `Laptop` 1280 × 800, `Desktop` 1440 × 900, or a `Custom` size: the clean page renders in an iframe of exactly that size | `?v=390x844` |
+| `Compare` | pick an axis: one cell per value, each an iframe of the clean page at that value, everything else fixed by the link; `Open` leaves with that value | `?compare=density` |
+
+The footer sums up the current state. A gesture made inside a frame (a click that moves to a
+screen) is reported to the lab URL, so `Copy link` always copies what is on screen (ADR 0007).
+Frames are same-origin iframes: do not block framing of your own pages (`frame-ancestors 'self'`).
 
 ## Comments
 
@@ -215,7 +226,7 @@ your update PRs.
 | `LabDashboard` | the index page body, server component |
 | `ProtoView` | one proto inside its axes, screens and scenarios, with the lab panel; a client component. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
 | `useAxis`, `useScreen`, `useScenario`, `AxisSlot` | read an axis; read and change the current screen and step; read a scenario's data; render the current value of a structural axis |
-| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page |
+| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page (`LabPanel` takes `open` and `onOpenChange`) |
 
 ## Layout of this repo
 

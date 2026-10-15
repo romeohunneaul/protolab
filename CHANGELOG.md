@@ -27,6 +27,14 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   without `package.json` or an `app/` folder; the `Next:` block names `protolab-check` and the
   same-origin iframe requirement. All three CLIs refuse a `protolab.config.json` that is not JSON.
 
+- The lab panel is a drawer on the right with three tabs: `Variants`, `Viewport` (presets
+  `Phone`, `Tablet`, `Laptop`, `Desktop`, `Free size`, `Custom`; the clean page renders in an
+  iframe of that exact size, `?v=<w>x<h>`) and `Compare` (one iframe cell per value of an axis,
+  `?compare=<key>`, `current` mark, `Open`, `Exit comparison`); `Copy clean link`; the current
+  state in the footer; `Copied` feedback and a text field when the clipboard is unavailable.
+- The clean page (`?lab=0`): the screen alone, no tool, the link's size applied.
+- A gesture inside a frame is reported to the lab URL (ADR 0007: same-origin postMessage).
+
 ### Changed
 
 - **Migration.** `ProtoView` is a client component and no longer takes a `Component` prop: the
@@ -36,6 +44,7 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   page of the README. A manifest written for 0.1 stays valid as is.
 - An axis, a scenario or a size switch replaces the history entry; a screen or a step pushes one
   and scrolls to the top. The Back button restores the previous entry as it was.
+- `LabPanel`, when used directly, takes `open` and `onOpenChange` props.
 
 ## [0.1.0] - 2026-10-15
 
