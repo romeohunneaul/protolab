@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 // The lab index, one proto, an axis switch, the URL that carries it, three sizes.
-const select = (page: Page, label: string) => page.locator("[data-lab-ui] label", { hasText: label }).locator("select");
+const select = (page: Page, label: string) => page.locator("[data-lab-ui] label:visible", { hasText: label }).locator("select");
 
 test("/lab lists the example protos", async ({ page }) => {
   await page.goto("/lab");
@@ -132,4 +132,70 @@ test("clean page: no tool, the state kept, the link's size applied; Copy clean l
   expect(copied).not.toMatch(/lab=1/);
   expect(copied.match(/lab=/g)?.length).toBe(1);
   expect(copied).toMatch(/a\.state=empty/);
+});
+
+test("request: a new axis composes a prompt with the state and the intent, copied to the clipboard", async ({ page }) => {
+  await page.goto("/lab/p/flow?a.density=compact&s.volume=500");
+  await page.getByRole("tab", { name: "Request" }).click();
+  await page.getByRole("button", { name: "Add an axis or a value" }).click();
+  await expect(page.getByRole("button", { name: "Copy prompt" })).toBeDisabled();
+  await page.locator("[data-lab-request] select").first().selectOption("__new__");
+  await page.getByLabel(/Axis label/).fill("Theme");
+  await page.getByLabel(/^Values/).fill("light, dark");
+  await page.getByLabel(/^Intent/).fill("ajoute un thème sombre sur la liste");
+  await expect(page.getByRole("button", { name: "Copy prompt" })).toBeEnabled();
+  await page.getByRole("button", { name: "Copy prompt" }).click();
+  await expect(page.getByText("Prompt copied")).toBeVisible();
+  const prompt = await page.evaluate(() => navigator.clipboard.readText());
+  expect(prompt).toContain("Protolab request: add an axis or a value");
+  expect(prompt).toContain('Proto: Flow (slug "flow")');
+  expect(prompt).toMatch(/State: http:\/\/localhost:3100\/lab\/p\/flow\?a\.density=compact&s\.volume=500/);
+  expect(prompt).toContain("density: Compact (compact)");
+  expect(prompt).toContain("layout: Table (table), structural");
+  expect(prompt).toContain("scenario volume: 500 invoices (500)");
+  expect(prompt).toContain('New axis: "Theme"');
+  expect(prompt).toContain("  - light\n  - dark");
+  expect(prompt).toContain("Intent: ajoute un thème sombre sur la liste");
+  expect(prompt).toContain("npx protolab-check");
+});
+
+test("request: designating an element names it, a click does not trigger it, and the state change clears it", async ({ page }) => {
+  await page.goto("/lab/p/flow");
+  await page.getByRole("tab", { name: "Request" }).click();
+  await page.getByRole("button", { name: "Change this component" }).click();
+  await page.getByRole("button", { name: "Designate an element" }).click();
+  await expect(page.getByText("Click an element in the prototype · Esc to cancel")).toBeVisible();
+  await page.getByRole("button", { name: /Invoice #1042/ }).click();
+  await expect(page).not.toHaveURL(/screen=detail/); // the click designated, it did not open the detail
+  const named = page.locator("[data-lab-designated]");
+  await expect(named).toContainText("<button>");
+  await expect(named).toContainText("Invoice #1042");
+  await expect(named).toContainText("button");
+  await page.getByLabel(/^Intent/).fill("bouton secondaire");
+  await page.getByRole("button", { name: "Copy prompt" }).click();
+  const prompt = await page.evaluate(() => navigator.clipboard.readText());
+  expect(prompt).toContain("Protolab request: change this component");
+  expect(prompt).toMatch(/Element: <button> "Invoice #1042/);
+  expect(prompt).toMatch(/path: .*button/);
+  await page.getByRole("tab", { name: "Variants" }).click();
+  await select(page, "Density").selectOption("compact");
+  await page.getByRole("tab", { name: "Request" }).click();
+  await expect(page.getByText("Designation cleared: the state changed")).toBeVisible();
+  await expect(named).toHaveCount(0);
+});
+
+test("request: designating inside the viewport frame goes through the frame bridge", async ({ page }) => {
+  await page.goto("/lab/p/flow?v=390x844");
+  await page.getByRole("tab", { name: "Request" }).click();
+  await page.getByRole("button", { name: "Change this component" }).click();
+  await page.getByRole("button", { name: "Designate an element" }).click();
+  const inner = page.frameLocator("iframe[data-lab-frame]");
+  await expect(inner.locator("body")).toHaveCSS("cursor", "crosshair");
+  await inner.getByRole("heading", { name: "Invoices" }).click();
+  await expect(page.locator("[data-lab-designated]")).toContainText("<h1>");
+  await expect(page.locator("[data-lab-designated]")).toContainText("Invoices");
+  await page.goto("/lab/p/flow?compare=density");
+  await page.getByRole("tab", { name: "Request" }).click();
+  await expect(page.getByRole("button", { name: /Change this component/ })).toBeDisabled();
+  await expect(page.getByText("Open a cell to change a component")).toBeVisible();
 });
