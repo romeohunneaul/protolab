@@ -9,24 +9,12 @@
 
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, dirname, posix } from "node:path";
+import { fail, readConfig } from "./_config.mjs";
 
 const root = process.cwd();
-const config = {
-  protosDir: "src/lab/protos",
-  manifest: "src/lab/manifest.ts",
-  componentsDir: "src/components/ui",
-  basePath: "/lab",
-  ...(existsSync(join(root, "protolab.config.json"))
-    ? JSON.parse(readFileSync(join(root, "protolab.config.json"), "utf8"))
-    : {}),
-};
+const config = readConfig(root);
 
 const [slug, name, author = "", description = ""] = process.argv.slice(2);
-
-const fail = (msg) => {
-  console.error(`✗ ${msg}`);
-  process.exit(1);
-};
 
 if (!slug || !name) fail('Usage: protolab-new <slug> "<Name>" "<Author>" "<Description>"');
 if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) fail(`slug must be kebab-case (got "${slug}")`);
