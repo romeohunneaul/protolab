@@ -18,6 +18,16 @@
     "protolab-new": "./bin/protolab-new.mjs",
     "protolab-skills": "./bin/protolab-skills.mjs"
   },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "typecheck": "npm --prefix examples/next run typecheck",
+    "build:example": "npm --prefix examples/next run build",
+    "smoke": "playwright test",
+    "check": "npm test && npm run typecheck && npm run build:example && npm run smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  },
   "peerDependencies": {
     "next": ">=15",
     "react": ">=19"
