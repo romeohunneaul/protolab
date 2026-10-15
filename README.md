@@ -159,8 +159,15 @@ into `.claude/skills/`: they are copies, so they do not follow the package on th
 `package-lock.json` and `.claude/skills/` afterwards, so every clone of your project runs the same
 version.
 
-There are no tagged releases yet: `main` is the version. Once releases are tagged, pin a range
-(`github:romeohunneaul/protolab#semver:^0.2.0`) and let a bot such as Renovate open the update PRs.
+Releases are tagged `vX.Y.Z`, one per lot, with their notes in `CHANGELOG.md`. Pin a tag rather
+than `main`:
+
+```bash
+npm i -D github:romeohunneaul/protolab#v0.1.0
+```
+
+A range works too (`github:romeohunneaul/protolab#semver:^0.1.0`) if a bot such as Renovate opens
+your update PRs.
 
 ## What's in the box
 
@@ -182,6 +189,8 @@ There are no tagged releases yet: `main` is the version. Once releases are tagge
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
 | `rules/` | `proto.md`, what a proto is and respects; installed into consumers' `.claude/rules/` by `protolab-skills`, with `paths` set from `protosDir` |
 | `examples/next/` | a minimal Next app wired to the local engine (`file:../..`): edits in `src/` show live |
+| `docs/adr/` | one short ADR per decision; `CHANGELOG.md` at the root lists each tagged release |
+| `CLAUDE.md` | the rules, verification commands and definition of done for contributors and agents |
 
 Run the example:
 
