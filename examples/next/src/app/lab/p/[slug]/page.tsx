@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
-import { ProtoView, findProto } from "@romeohunneaul/protolab";
+import { findProto } from "@romeohunneaul/protolab";
 import { PROTOS } from "@/lab/manifest";
+import LabProto from "./proto";
 
 export const metadata: Metadata = { title: "Lab", robots: { index: false, follow: false } };
 export const generateStaticParams = () => PROTOS.map((p) => ({ slug: p.slug }));
 
-// dynamic() must run at module scope, not during render.
-const COMPONENTS = Object.fromEntries(PROTOS.map((p) => [p.slug, dynamic(p.load)]));
-
+// The server page checks the slug; the client module next to it imports the manifest and renders
+// the proto, so the loaders (components, scenario data) never cross the server boundary.
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const proto = findProto(PROTOS, slug);
-  if (!proto) notFound();
-  return <ProtoView proto={proto} Component={COMPONENTS[slug]} protos={PROTOS} basePath="/lab" />;
+  if (!findProto(PROTOS, slug)) notFound();
+  return <LabProto slug={slug} />;
 }
