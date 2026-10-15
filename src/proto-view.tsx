@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useState, type ReactNode } from "react";
+import { Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Proto } from "./manifest";
 import { CompareGrid, ViewportFrame, useReportToParent } from "./frames";
+import { DESIGNATE, DESIGNATED, DESIGNATING, DESIGNATION_CANCELLED, sameOrigin, useDesignation, type Designated } from "./designate";
 import { LabPanel } from "./panel";
 import { VariantProvider, compareValue, componentOf, isCleanPage, viewportValue } from "./variants";
 
@@ -59,6 +60,31 @@ function View({ proto, protos = [], basePath = "/lab", annotation }: { proto: Pr
 /** The clean page: the screen alone, at the link's size when it has one, centered, no border, no label. */
 function CleanPage({ size, children }: { size: { width: number; height: number } | null; children: ReactNode }) {
   useReportToParent();
+  // Inside a frame, the lab page can ask this page to designate an element (Request tab).
+  const [designating, setDesignating] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || window.parent === window) return;
+    const onMessage = (e: MessageEvent) => {
+      if (!sameOrigin(e)) return;
+      if (e.data?.type === DESIGNATE) {
+        setDesignating(true);
+        window.parent.postMessage({ type: DESIGNATING }, window.location.origin);
+      }
+      if (e.data?.type === DESIGNATION_CANCELLED) setDesignating(false);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+  const pick = useCallback((element: Designated) => {
+    setDesignating(false);
+    window.parent.postMessage({ type: DESIGNATED, element }, window.location.origin);
+  }, []);
+  const cancel = useCallback(() => {
+    setDesignating(false);
+    window.parent.postMessage({ type: DESIGNATION_CANCELLED }, window.location.origin);
+  }, []);
+  const root = useCallback(() => document.body, []);
+  useDesignation(designating, pick, cancel, root);
   if (!size) return <>{children}</>;
   return (
     <div className="flex justify-center">

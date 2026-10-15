@@ -158,6 +158,7 @@ outside). Three tabs:
 | `Variants` | one selector per declared screen, step, axis and scenario | `?screen=…&step=…&a.…&s.…` |
 | `Viewport` | `Free size`, the presets `Phone` 390 × 844, `Tablet` 768 × 1024, `Laptop` 1280 × 800, `Desktop` 1440 × 900, or a `Custom` size: the clean page renders in an iframe of exactly that size | `?v=390x844` |
 | `Compare` | pick an axis: one cell per value, each an iframe of the clean page at that value, everything else fixed by the link; `Open` leaves with that value | `?compare=density` |
+| `Request` | `Add an axis or a value`, `Change this component` (click an element in the proto, in the page or in the viewport frame), `Add a scenario`: the lab composes a prompt from the manifest, the link, the designated element and your intent; `Copy prompt`, or `Open in Claude Desktop` (`claude://code/new?q=…`). It writes no code: paste the prompt in a Claude Code session on the host repo | nothing: a draft is not lab state |
 
 The footer sums up the current state. A gesture made inside a frame (a click that moves to a
 screen) is reported to the lab URL, so `Copy link` always copies what is on screen (ADR 0007).

@@ -34,6 +34,12 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   state in the footer; `Copied` feedback and a text field when the clipboard is unavailable.
 - The clean page (`?lab=0`): the screen alone, no tool, the link's size applied.
 - A gesture inside a frame is reported to the lab URL (ADR 0007: same-origin postMessage).
+- The `Request` tab: `Add an axis or a value`, `Change this component` (designate an element by
+  clicking it, in the page or inside the viewport frame; Escape cancels; a state change clears
+  the designation), `Add a scenario`. The lab composes a prompt (the proto, the link and the
+  state in clear, the target, the options, the intent, the instructions for a session) and
+  offers `Copy prompt` and `Open in Claude Desktop` (`claude://code/new?q=…`, no folder); it
+  writes no code. A draft is not in the URL.
 
 ### Changed
 
