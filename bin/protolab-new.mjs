@@ -39,11 +39,12 @@ const component = `"use client";
 // To react to a variant axis: const state = useAxis("state");  (add axes with protolab-variant)
 // Several views (list → detail)? Declare screens on the entry, then: const { screen, go } = useScreen();
 
+// No styling here on purpose: build with the host's components and tokens (.claude/rules/proto.md).
 export default function ${className}() {
   return (
-    <section className="py-8">
-      <h1 className="mb-1 text-2xl font-semibold">${name}</h1>
-      <p className="text-sm text-neutral-500">New prototype. Start building.</p>
+    <section>
+      <h1>${name}</h1>
+      <p>New prototype. Start building.</p>
     </section>
   );
 }

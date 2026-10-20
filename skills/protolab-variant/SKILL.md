@@ -72,8 +72,8 @@ manifest file (`./protos/<slug>/<file>` when the manifest sits next to the proto
 ] },
 ```
 
-Files: one per value, `<protosDir>/<slug>/<axis key>-<value id>.tsx`, each `"use client"` with a
-default export and **no props**. A value component reads the other axes, the screen and the
+Files: one per value, `<protosDir>/<slug>/<axis key>-<value id>.tsx`, with a default export and
+**no props** (`"use client"` as the rule says). A value component reads the other axes, the screen and the
 scenarios with the same hooks as the root (`useAxis`, `useScreen`, `useScenario`), so the other
 axes still apply inside each version. Shared pieces (the data, a row, a filter list) go in a
 sibling file both versions import; do not copy them twice.

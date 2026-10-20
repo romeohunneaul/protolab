@@ -22,8 +22,11 @@ screen", not the ceremony.
 2. **The brief and the jobs**, when they exist: a brief file the user points to (it becomes the
    entry's `brief` field), and the jobs of the feature in the host's product repo (a `jtbd.md`).
    They give the directions and the edge cases.
-3. **What exists**: if the feature touches a coded area, read it; the proto should look like the
-   product, not start from scratch.
+3. **What exists**: if the feature touches a coded area of this repo, read it; the proto should
+   look like the product, not start from scratch.
+
+A source that is not reachable from this repo (the live site lives elsewhere, there is no product
+repo, no brief) is skipped: say which ones, and continue. Do not search the disk for them.
 4. **The design system**: run `protolab-ds-context`.
 5. **References** (optional): if a Mobbin tool is available, look at two or three products that
    solve the same screen.
@@ -45,7 +48,11 @@ then prints `<basePath>/p/<slug>`. Never write the entry by hand: a manual inser
 Edit `<protosDir>/<slug>/index.tsx`:
 
 - import the real components the way `protolab-ds-context` said; never copy their style;
-- labels in the host's language;
+- labels in the host's language: the `lang` of its root layout, else the language of the
+  existing protos;
+- content only the user knows (what they work on, their clients, their numbers): write plausible
+  placeholders in `data.ts`, mark them as placeholders in a comment, and say so in your reply.
+  Never present invented facts as real;
 - several views (list → detail, a flow in steps): declare `screens` and `steps` and move with
   `useScreen` (`protolab-variant`, section 4);
 - `"use client"` when the file reads a lab hook or has interactivity.

@@ -29,9 +29,9 @@ export default function InvoiceList() {           // PascalCase of the slug
 }
 ```
 
-The manifest entry (`slug`, `name`, `author`, `description`, `load`, then optional `axes`,
-`screens`, `scenarios`, `brief`, `offDs`) is written by `protolab-new` and completed by the
-skills; `load` imports `./protos/<slug>`.
+The manifest entry is written by `protolab-new` (`slug`, `name`, `author`, `description`,
+`load`) and completed by the skills (`axes`, `screens`, `scenarios`, `brief`, `offDs`, in any
+order); `load` imports `./protos/<slug>`.
 
 ## Naming and location
 

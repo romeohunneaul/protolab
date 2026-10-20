@@ -48,7 +48,8 @@ section 3, for the exact shapes):
   axes apply inside each approach through `useAxis`), its responsive behaviour.
 - The approaches share the data and any piece that is not what diverges, from a sibling file.
 - The root places `<AxisSlot axis="<key>" />`; when the whole screen diverges, the root is only
-  the slot. When the proto already has a structural axis on the same area, nest the slots instead
+  the slot, and what all approaches keep identical (a heading, the data) goes in a sibling file
+  each approach imports. When the proto already has a structural axis on the same area, nest the slots instead
   (`protolab-variant`, section 3): every existing value places the new slot, so each approach
   combines with each existing value.
 - Keep the existing axes, values and ids: never remove one to make room for the approaches.
