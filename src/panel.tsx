@@ -20,10 +20,11 @@ import {
   useWriteParams,
   viewportValue,
 } from "./variants";
+import { RequestTab } from "./request";
 
 type Ref = { slug: string; name: string; offDs?: boolean };
 type Option = { id: string; label: string };
-type Tab = "Variants" | "Viewport" | "Compare";
+type Tab = "Variants" | "Viewport" | "Compare" | "Request";
 
 /** The viewport presets, the same for every host and every proto; a missing size goes in Custom. */
 export const PRESETS: { label: string; width: number; height: number }[] = [
@@ -35,7 +36,7 @@ export const PRESETS: { label: string; width: number; height: number }[] = [
 
 /**
  * The lab chrome on a proto page: a non-modal drawer on the right, with a header (back to the
- * index, the proto, the links), three tabs (Variants, Viewport, Compare) and the current state
+ * index, the proto, the links), four tabs (Variants, Viewport, Compare, Request) and the current state
  * in the footer. Collapses to a button. Its open state and tab are not lab state: not in the URL.
  */
 export function LabPanel({
@@ -131,15 +132,14 @@ export function LabPanel({
         {fallback && <input readOnly value={fallback} autoFocus onFocus={(e) => e.currentTarget.select()} className="mt-2 w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs" aria-label="Link to copy" />}
       </div>
       <nav className="flex border-b border-neutral-800 text-xs" role="tablist">
-        {(["Variants", "Viewport", "Compare"] as Tab[]).map((t) => (
+        {(["Variants", "Viewport", "Compare", "Request"] as Tab[]).map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 px-3 py-2 ${tab === t ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white"}`}>
             {t}
           </button>
         ))}
       </nav>
       <div className="flex-1 overflow-y-auto p-3">
-        {tab === "Variants" && (
-          <div className="grid gap-2">
+        <div hidden={tab !== "Variants"} className="grid gap-2">
             {screens.length === 0 && axes.length === 0 && scenarios.length === 0 && <p className="text-xs text-neutral-500">No variants declared</p>}
             {screens.length > 0 && (
               <Field label="Screen" value={screenValue(screens, params)} options={screens.map((s) => ({ id: s.key, label: s.label }))} onChange={(key) => write({ [SCREEN_PARAM]: key, [STEP_PARAM]: null }, "push")} />
@@ -162,15 +162,20 @@ export function LabPanel({
             {scenarios.map((scenario) => (
               <Field key={scenario.key} label={scenario.label} value={scenarioValue(scenario, params)} options={scenario.values} onChange={(id) => write({ [scenarioParam(scenario.key)]: id }, "replace")} />
             ))}
-          </div>
-        )}
-        {tab === "Viewport" && <ViewportTab size={size} onChange={(v) => write({ [VIEWPORT_PARAM]: v }, "replace")} />}
-        {tab === "Compare" &&
-          (axes.length === 0 ? (
+        </div>
+        <div hidden={tab !== "Viewport"}>
+          <ViewportTab size={size} onChange={(v) => write({ [VIEWPORT_PARAM]: v }, "replace")} />
+        </div>
+        <div hidden={tab !== "Compare"}>
+          {axes.length === 0 ? (
             <p className="text-xs text-neutral-500">No axis to compare</p>
           ) : (
             <CompareTab axes={axes.map((a) => ({ id: a.key, label: a.label }))} compared={compared?.key} onCompare={(key) => write({ [COMPARE_PARAM]: key }, "push")} onExit={() => write({ [COMPARE_PARAM]: null }, "push")} />
-          ))}
+          )}
+        </div>
+        <div hidden={tab !== "Request"}>
+          <RequestTab proto={proto} compared={!!compared} framed={!!size && !compared} />
+        </div>
       </div>
       <p className="truncate border-t border-neutral-800 px-3 py-2 text-[10px] text-neutral-500" title={state} data-lab-state>
         {state}
