@@ -119,6 +119,18 @@ test("compare: a grid with one clean-page cell per value, the current one marked
   await expect(cells).toHaveCount(2);
 });
 
+test("compare at phone size: the cells sit side by side, left of the panel, outside the host's layout", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/lab/p/flow?compare=density&v=390x844");
+  const cells = page.locator("[data-lab-cell] iframe");
+  await expect(cells).toHaveCount(2);
+  const [a, b] = [await cells.nth(0).boundingBox(), await cells.nth(1).boundingBox()];
+  const panel = await page.locator("aside[data-lab-ui]").boundingBox();
+  expect(a?.width).toBe(390);
+  expect(Math.round(a!.y)).toBe(Math.round(b!.y)); // same row
+  expect(b!.x + b!.width).toBeLessThanOrEqual(panel!.x); // never under the panel
+});
+
 test("clean page: no tool, the state kept, the link's size applied; Copy clean link adds lab=0 once", async ({ page }) => {
   await page.goto("/lab/p/hello?a.state=empty&lab=0");
   await expect(page.getByText("Nothing here yet.")).toBeVisible();
