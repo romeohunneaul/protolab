@@ -19,7 +19,7 @@ browser when it becomes current. A scenario carries data, never a mode of the sc
 | The rows a role is allowed to see | a scenario |
 | A persona whose numbers and names differ | a scenario |
 | A persona where only the wording of the component changes | a state axis (`protolab-variant`) |
-| The empty state forced by the component whatever the data | a state axis; a scenario with 0 items produces it through the data. Pick one, say which |
+| The empty state forced by the component whatever the data | a state axis; a scenario with 0 items produces it through the data. If the proto already has an empty state axis, keep it and add the scenario next to it: removing the axis breaks links and the side-by-side comparison of empty vs full |
 
 A scenario cannot be compared side by side (the comparison view varies an axis). If the user
 wants personas side by side and only the wording differs, make it a state axis.
@@ -29,23 +29,24 @@ wants personas side by side and only the wording differs, make it a state axis.
 A sibling file of the proto, `<protosDir>/<slug>/data.ts`, typed, deterministic, no network call:
 
 ```ts
-export type Book = { title: string; date: string; summary: string; tags: string[] };
+export type Book = { title: string; date: string; tags: string[] };
 
-const TITLES = ["Shape Up", "Thinking in Systems", "The Mom Test", "Inspired"];
+// As many distinct seeds as the biggest value needs: a repeated item ("Shape Up (2)") is not plausible.
+const SEEDS: Omit<Book, "date">[] = [
+  { title: "Shape Up", tags: ["product"] },
+  { title: "Thinking in Systems", tags: ["systems", "classic"] },
+  // …
+];
 
-/** `count` books, always the same for the same count: a shared link shows the same list. */
+/** The first `count` seeds, dated from the most recent: the same count always gives the same list. */
 export const books = (count: number): Book[] =>
-  Array.from({ length: count }, (_, i) => ({
-    title: TITLES[i % TITLES.length] + (i >= TITLES.length ? ` (${Math.floor(i / TITLES.length) + 1})` : ""),
-    date: `2026-${String((i % 12) + 1).padStart(2, "0")}-01`,
-    summary: "…",
-    tags: [["design"], ["product"], ["systems", "classic"]][i % 3],
-  }));
+  SEEDS.slice(0, count).map((seed, i) => ({ ...seed, date: `2026-${String(12 - (i % 12)).padStart(2, "0")}-01` }));
 ```
 
 - **Deterministic**: no `Math.random`, no `Date.now`: the same link must show the same data.
-- **Plausible**: names, amounts and dates that look like the real domain, in the host's language;
-  fictional, never a real customer or person.
+- **Plausible**: names, amounts and dates that look like the real domain, in the host's language,
+  every item distinct. Public works (book titles, products) may be real; people, customers and
+  their data are always fictional.
 - **The edges that matter**: an empty set, a typical set, a set big enough to stress the layout
   (long lists, long names, large numbers).
 
@@ -63,7 +64,9 @@ scenarios: [
 ],
 ```
 
-Component (`"use client"`), and every structural value component that shows the data:
+Component (`"use client"`): the root, or the component that shows the data. When several values
+or slots show it, read it once in a context provider at the root and share it
+(`protolab-variant`, section 3):
 
 ```tsx
 import { useScenario } from "@romeohunneaul/protolab";

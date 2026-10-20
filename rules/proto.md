@@ -14,11 +14,11 @@ no route outside the lab), nor an HTML mock-up, nor a component of the design sy
 <protosDir>/<slug>/
   index.tsx              # default export: the proto's root component
   <axis>-<value>.tsx     # one per value of a structural axis (optional)
-  data.ts                # the data sets of its scenarios (optional)
+  data.ts                # its data: constants, and the data sets of its scenarios (optional)
 ```
 
 ```tsx
-"use client";                                     // only if the proto reads a lab hook
+"use client";                                     // if the file reads a lab hook or has interactivity
 import { AxisSlot, useAxis, useScenario, useScreen } from "@romeohunneaul/protolab";
 
 export default function InvoiceList() {           // PascalCase of the slug
@@ -55,6 +55,13 @@ skills; `load` imports `./protos/<slug>`.
   scenario (`useScenario`), a view is a screen (`useScreen`). Never local state that doubles the
   URL: the URL is the state, and a link must restore the screen.
 - `"use client"` opens a file that reads a lab hook or has interactivity.
+- What the proto's own controls change (an open tab, toggled filters, a search) is its
+  interaction state: `useState` is right for it. A link does not restore it; when a reviewer must
+  land on it from a link, make it a screen or an axis.
+- Styling: the host's components, utility classes and tokens. Layout utilities (grid, flex,
+  spacing, `sticky`, borders) with the host's tokens are fine. Custom CSS, to ask before writing,
+  is anything else: a new colour, font, shadow or class, an inline style, a restyled component.
+- Responsive breakpoints are the host's; never tune them to the lab's comparison cells.
 - The proto calls no service: its data is in its folder (`data.ts`, deterministic). It adds no
   dependency to the host.
 - Labels in the host's language, even when the conversation is in another one.
@@ -63,7 +70,7 @@ skills; `load` imports `./protos/<slug>`.
 - ❌ A static `.html` or a screenshot instead of a component.
 - ❌ A manifest entry written by hand for a new proto: `protolab-new` writes it.
 - ❌ A design-system component copied into the proto's folder to change it.
-- ❌ A `useState` that carries a variant the panel should drive.
+- ❌ A `useState` that carries a variant the panel should drive (a mode, a version of a block, a data set).
 - ❌ A copy of the proto folder to show another approach: that is a structural axis.
 
 ## See also

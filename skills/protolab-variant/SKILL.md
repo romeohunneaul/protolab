@@ -30,6 +30,15 @@ changes per persona while the component stays the same is a **state** axis.
 Ask (`AskUserQuestion`, with a default) only if the request fits two rows and the choice changes
 what the user sees. Otherwise pick, and say which kind you chose and why in one line.
 
+**The request names something the proto does not have yet** ("filters above the tabs" on a
+proto without tabs): add it in its simplest form with the design system, as part of the
+variant, and say what you added. Do not ask.
+
+**Never remove or rename an existing axis, value or id as a side effect**: links that carry it
+fall back to the default, and a removed axis can no longer be compared side by side. Propose the
+removal; do it only when the user agrees. Labels are not ids: after adding an axis, re-read the
+existing labels and the entry's `description`, and fix any that became false.
+
 ## 2. A state axis
 
 Manifest, on the proto's entry:
@@ -82,6 +91,17 @@ export default function ReadingList() {
 A structural axis whose slot is not placed renders nothing and `protolab-check` cannot see it:
 check that `<AxisSlot axis="<key>" />` is in the code.
 
+**State shared by several values or slots** (the selected filters used by the filter block and by
+the list): value components take no props, so share it through a React context provided by the
+root (`index.tsx`), in a sibling file (`reading.tsx`) that the values import.
+
+**Two structural axes on the same area** (a `filters` axis exists and the user now wants N
+approaches of what it frames): nest them. Each value of the outer axis places the inner slot
+where its content goes (`filters-side.tsx` renders the side panel, then
+`<AxisSlot axis="approach" />`), so every combination stays valid. Check that **every** value of
+the outer axis places the inner slot. Putting the new axis at the root instead would make the
+existing one dead in some values: never do that.
+
 ## 4. Screens and steps
 
 For a proto with several views, declare `screens` (the first one is the landing screen) and,
@@ -102,14 +122,26 @@ const { screen, go, step, steps, next, prev } = useScreen();
 Each move pushes a browser history entry, so Back walks the flow; the URL carries
 `?screen=<key>&step=<n>`. Axes stay independent from screens.
 
-## 5. Verify, then hand over
+## 5. Gestures inside the proto
+
+What the proto's own controls change (the open tab, the toggled filters, a typed search, an open
+dialog) is the proto's interaction state: `useState` is right for it. It is not lab state, a link
+does not restore it, and in the comparison view each cell keeps its own. When a reviewer must
+land on it from a link (the "Finished" tab, the dialog open), make it a screen (section 4) or an
+axis instead. The panel drives axes, screens and scenarios; the proto drives the rest.
+
+## 6. Verify, then hand over
 
 1. `npx protolab-check`: 0 errors.
 2. The project's typecheck (`npx tsc --noEmit` or its script).
 3. Give the links, with `<basePath>` from the config:
    - the variant: `<basePath>/p/<slug>?a.<key>=<id>`
-   - side by side: `<basePath>/p/<slug>?compare=<key>` (one cell per value; add `&v=390x844` to
-     compare at phone width)
+   - side by side at desktop width: `<basePath>/p/<slug>?compare=<key>&v=1280x800`
+   - side by side at phone width: `<basePath>/p/<slug>?compare=<key>&v=390x844`
+
+   Without a size, comparison cells are as narrow as the window divided by the number of values
+   (about 540 px each for two values on a laptop), so the proto renders its narrow layout. Pass a
+   size; never adapt the proto's breakpoints to the comparison cells.
 
 Do not run the app to judge the render in the user's place: the visual check is theirs.
 
@@ -126,4 +158,4 @@ Do not run the app to judge the render in the user's place: the visual check is 
 - **The design system first.** A missing component (no `Tabs` in the host's library, for
   instance) is a gap to report, not a reason to restyle: compose with the existing components and
   say so, or use a library the config allows outside the design system (`ds.offDs`) and set
-  `offDs: true` on the proto.
+  `offDs: true` on the proto. What counts as custom CSS: `.claude/rules/proto.md`.

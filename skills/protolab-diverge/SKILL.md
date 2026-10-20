@@ -48,7 +48,10 @@ section 3, for the exact shapes):
   axes apply inside each approach through `useAxis`), its responsive behaviour.
 - The approaches share the data and any piece that is not what diverges, from a sibling file.
 - The root places `<AxisSlot axis="<key>" />`; when the whole screen diverges, the root is only
-  the slot.
+  the slot. When the proto already has a structural axis on the same area, nest the slots instead
+  (`protolab-variant`, section 3): every existing value places the new slot, so each approach
+  combines with each existing value.
+- Keep the existing axes, values and ids: never remove one to make room for the approaches.
 - The approaches differ in structure and hierarchy, and all use the design system. An approach
   that needs a library outside it is allowed only if `ds.offDs` lists it; the proto then gets
   `offDs: true`.
@@ -56,8 +59,9 @@ section 3, for the exact shapes):
 ## 3. Verify, then hand over
 
 1. `npx protolab-check`: 0 errors; the project's typecheck passes.
-2. Give the comparison link: `<basePath>/p/<slug>?compare=<key>`, and the same with
-   `&v=390x844` for phone width.
+2. Give the comparison links with a size, desktop and phone:
+   `<basePath>/p/<slug>?compare=<key>&v=1280x800` and `…&v=390x844`. Without a size, the cells
+   are narrow and the proto shows its narrow layout.
 3. Recap, one line per approach: label, hypothesis, what to look at.
 
 ## 4. Converge
