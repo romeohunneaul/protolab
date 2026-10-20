@@ -4,8 +4,9 @@ From a feature intent to a running screen, built with the host project's own com
 The metric is the time between "I have an idea" and "I see it on screen".
 
 A prototype is a React component in your project, registered in one hand-editable manifest,
-served at `/lab/p/<slug>`, with **axes** (state, layout, theme) switchable from a floating
-panel and encoded in the URL so a link restores the exact combination. Three agent skills ship
+served at `/lab/p/<slug>`, with **axes** (states, or competing versions of a block), **screens**
+and their **steps**, and **scenarios** (data sets), all switchable from a floating panel and
+encoded in the URL so a link restores the exact combination. Three agent skills ship
 with the package: create a proto, add an axis, read your design system before touching anything.
 
 Works with Next.js App Router (15+), React 19 and Tailwind CSS v4 (the panel and the dashboard
@@ -67,27 +68,36 @@ export const metadata: Metadata = { title: "Lab", robots: { index: false, follow
 export default () => <LabDashboard protos={PROTOS} />;
 ```
 
-**The proto page**:
+**The proto page**, a server page that checks the slug, and a client module next to it that
+imports the manifest and renders the proto (so the loaders never cross the server boundary):
 
 ```tsx
 // src/app/lab/p/[slug]/page.tsx
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
-import { ProtoView, findProto } from "@romeohunneaul/protolab";
+import { findProto } from "@romeohunneaul/protolab";
 import { PROTOS } from "@/lab/manifest";
+import LabProto from "./proto";
 
 export const metadata: Metadata = { title: "Lab", robots: { index: false, follow: false } };
 export const generateStaticParams = () => PROTOS.map((p) => ({ slug: p.slug }));
 
-// dynamic() must run at module scope, not during render.
-const COMPONENTS = Object.fromEntries(PROTOS.map((p) => [p.slug, dynamic(p.load)]));
-
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!findProto(PROTOS, slug)) notFound();
+  return <LabProto slug={slug} />;
+}
+```
+
+```tsx
+// src/app/lab/p/[slug]/proto.tsx
+"use client";
+import { ProtoView, findProto } from "@romeohunneaul/protolab";
+import { PROTOS } from "@/lab/manifest";
+
+export default function LabProto({ slug }: { slug: string }) {
   const proto = findProto(PROTOS, slug);
-  if (!proto) notFound();
-  return <ProtoView proto={proto} Component={COMPONENTS[slug]} protos={PROTOS} basePath="/lab" />;
+  return proto ? <ProtoView proto={proto} protos={PROTOS} basePath="/lab" /> : null;
 }
 ```
 
@@ -105,14 +115,25 @@ npx protolab-new <slug> "<Name>" "<Author>" "<Description>"   # scaffold + regis
 npx protolab-skills                                            # skills into .claude/skills/, proto rules into .claude/rules/
 ```
 
-Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. Read an axis with
-`useAxis("state")`; declare axes on the manifest entry (see the `protolab-variant` skill). For a
-proto with several views, declare `screens` on the entry and move with
-`const { screen, go } = useScreen()`: each screen gets its own URL (`?screen=<key>`) and the
-browser's Back button walks the flow.
+Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. What a proto can
+declare on its manifest entry, and how it reads it:
+
+| Declared | Read by the proto | In the URL |
+|---|---|---|
+| `axes` with `kind: "state"` (the default): modes of the same screen | `useAxis("state")` returns the current value id | `?a.state=empty` |
+| `axes` with `kind: "structural"`: one component per value, for a block or the whole screen | `<AxisSlot axis="layout" />` where the block goes; the engine renders the current value's `load` | `?a.layout=cards` |
+| `screens`, the first one landing, each with optional `steps` | `const { screen, step, steps, go, next, prev } = useScreen()`; `go(key, step?)`, `next()`, `prev()` each push one history entry, so Back walks the flow | `?screen=checkout&step=2` |
+| `scenarios`: data sets, one `data` loader per value, loaded on the client when the value is current | `const { id, data, loading } = useScenario<T>("volume")` | `?s.volume=500` |
+| `brief`: a path to the proto's brief, `offDs: true` when the proto uses a library outside the design system | read by the skills and `protolab-check` | |
+
+Values and keys are kebab-case. An absent or unknown value in the URL falls back to the declared
+default (the first value unless `default` says otherwise): a stale link never shows an unknown
+state. Switching an axis, a scenario or a size replaces the history entry; moving to a screen or
+a step pushes one. Everything a proto v1 declared keeps working: `kind` absent means `state`.
 
 Every proto page carries the lab panel (bottom right, collapsible): back to the index, jump to
-another proto, then the proto's screen and axes, and a link that restores the exact combination.
+another proto, then the proto's screen, step, axes and scenarios, and a link that restores the
+exact combination.
 
 ## Comments
 
@@ -173,10 +194,10 @@ your update PRs.
 
 | Export | What |
 |---|---|
-| `defineProtos`, `findProto`, `Proto` | type the manifest, look a proto up |
+| `defineProtos`, `findProto`, `Proto`, `Axis`, `AxisValue`, `Screen`, `Scenario`, `ScenarioValue`, `Loader` | type the manifest, look a proto up |
 | `LabDashboard` | the index page body, server component |
-| `ProtoView` | one proto inside its axes and screens, with the lab panel. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
-| `useAxis`, `useScreen`, `Axis`, `Screen` | read an axis; read and change the current screen |
+| `ProtoView` | one proto inside its axes, screens and scenarios, with the lab panel; a client component. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
+| `useAxis`, `useScreen`, `useScenario`, `AxisSlot` | read an axis; read and change the current screen and step; read a scenario's data; render the current value of a structural axis |
 | `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page |
 
 ## Layout of this repo

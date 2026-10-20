@@ -6,6 +6,28 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
 
 ## [Unreleased]
 
+### Added
+
+- Manifest v2 (ADR 0001 of the product repo): `kind: "structural"` axes whose values are
+  components rendered by `<AxisSlot axis="…" />`; `steps` on a screen, read and moved with
+  `useScreen().step/steps/next/prev` and `go(key, step?)`; `scenarios` with one `data` loader
+  per value, read with `useScenario(key)`; `brief` and `offDs` on a proto. New exported types
+  `AxisValue`, `Scenario`, `ScenarioValue`, `Loader`.
+- The panel shows the `Step` selector and the scenarios; the index shows `Screens ×n` (two
+  screens or more), the scenarios and the `Off design system` mark, and an empty state.
+- `examples/next`: `flow` extended with a checkout in three steps, a structural `layout` axis
+  for the list and a `volume` scenario.
+
+### Changed
+
+- **Migration.** `ProtoView` is a client component and no longer takes a `Component` prop: the
+  proto page is a server page that checks the slug and renders a client module next to it
+  (`proto.tsx`) that imports the manifest and renders `<ProtoView proto protos basePath />`.
+  Delete your `<basePath>/p/[slug]/page.tsx` and run `npx protolab-init` again, or apply the
+  page of the README. A manifest written for 0.1 stays valid as is.
+- An axis, a scenario or a size switch replaces the history entry; a screen or a step pushes one
+  and scrolls to the top. The Back button restores the previous entry as it was.
+
 ## [0.1.0] - 2026-10-15
 
 First tagged release: the engine as built since October 2026, plus the engineering baseline.

@@ -41,3 +41,27 @@ for (const width of [390, 768, 1280]) {
     await expect(page.getByText("Nothing here yet.")).toBeVisible();
   });
 }
+
+test("steps: the panel and the proto push one URL per step, a structural axis swaps the block, a scenario switch writes the URL", async ({ page }) => {
+  await page.goto("/lab/p/flow");
+  await expect(page.getByRole("heading", { name: "Invoices" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Invoice #1042/ })).toBeVisible(); // 12 invoices by default, as a table
+  await select(page, "List layout").selectOption("cards");
+  await expect(page).toHaveURL(/a\.layout=cards/);
+  await expect(page.locator("ul.grid")).toBeVisible();
+  await select(page, "Volume").selectOption("0");
+  await expect(page).toHaveURL(/s\.volume=0/);
+  await expect(page.getByText("No invoice yet.")).toBeVisible();
+  await select(page, "Screen").selectOption("checkout");
+  await expect(page).toHaveURL(/screen=checkout/);
+  await expect(page).not.toHaveURL(/step=/);
+  await expect(page.getByRole("heading", { name: "Address" })).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL(/step=2/);
+  await expect(page.getByRole("heading", { name: "Payment" })).toBeVisible();
+  await expect(select(page, "Step")).toHaveValue("2");
+  await page.goBack();
+  await expect(page.getByRole("heading", { name: "Address" })).toBeVisible();
+  await page.goto("/lab/p/flow?screen=checkout&step=7");
+  await expect(page.getByRole("heading", { name: "Address" })).toBeVisible(); // out of range falls back to 1
+});
