@@ -83,7 +83,7 @@ test("protolab-new refuses a slug that is not kebab-case, a duplicate, and a mis
 test("protolab-skills copies the agent skills into .claude/skills/", () => {
   const first = run("protolab-skills");
   assert.equal(first.status, 0, first.out);
-  for (const s of ["protolab-create", "protolab-variant", "protolab-ds-context"]) {
+  for (const s of ["protolab-create", "protolab-variant", "protolab-diverge", "protolab-scenarios", "protolab-ds-context", "protolab-review"]) {
     assert.ok(existsSync(join(host, ".claude/skills", s, "SKILL.md")), `${s} should be installed`);
     assert.match(first.out, new RegExp(`✓ installed \\.claude/skills/${s}`));
   }

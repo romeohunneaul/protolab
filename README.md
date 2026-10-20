@@ -6,8 +6,17 @@ The metric is the time between "I have an idea" and "I see it on screen".
 A prototype is a React component in your project, registered in one hand-editable manifest,
 served at `/lab/p/<slug>`, with **axes** (states, or competing versions of a block), **screens**
 and their **steps**, and **scenarios** (data sets), all switchable from a floating panel and
-encoded in the URL so a link restores the exact combination. Three agent skills ship
-with the package: create a proto, add an axis, read your design system before touching anything.
+encoded in the URL so a link restores the exact combination. Six agent skills ship with the
+package, so Claude Code writes the protos for you:
+
+| Skill | Ask it to |
+|---|---|
+| `protolab-create` | create a proto from an intent, a brief, the jobs, your design system |
+| `protolab-variant` | add states, a competing version of a block (a structural axis), screens and steps |
+| `protolab-diverge` | build N approaches of a screen or a block to compare side by side, then keep one |
+| `protolab-scenarios` | add data sets: volumes, roles, personas |
+| `protolab-ds-context` | read your design system (code, Storybook, Claude Design) before touching anything |
+| `protolab-review` | turn the Vercel Comments on your previews into changes |
 
 Works with Next.js App Router (15+), React 19 and Tailwind CSS v4 (the panel and the dashboard
 are styled with Tailwind classes).

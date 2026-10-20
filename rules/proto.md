@@ -2,66 +2,72 @@
 paths: src/lab/protos/**/*.tsx
 ---
 
-# Proto : conventions
+# Proto: conventions
 
-Un proto est un composant React du projet hôte, inscrit au manifest du lab, servi à
-`<basePath>/p/<slug>`, qui réutilise les composants du projet. Ce n'est pas une page de l'app
-(il n'a pas de route à lui hors du lab), ni une maquette HTML, ni un composant du design system.
+A proto is a React component of the host project, registered in the lab's manifest, served at
+`<basePath>/p/<slug>`, built with the project's components. It is not a page of the app (it has
+no route outside the lab), nor an HTML mock-up, nor a component of the design system.
 
 ## Structure
 
 ```
 <protosDir>/<slug>/
-  index.tsx        # export default : le composant racine du proto
+  index.tsx              # default export: the proto's root component
+  <axis>-<value>.tsx     # one per value of a structural axis (optional)
+  data.ts                # the data sets of its scenarios (optional)
 ```
 
 ```tsx
-"use client";                                  // seulement si le proto lit un hook du lab
-import { useAxis, useScreen } from "@romeohunneaul/protolab";
+"use client";                                     // only if the proto reads a lab hook
+import { AxisSlot, useAxis, useScenario, useScreen } from "@romeohunneaul/protolab";
 
-export default function InvoiceList() {        // PascalCase du slug
-  const density = useAxis("density");          // une valeur d'axe, lue depuis l'URL
-  const { screen, go } = useScreen();          // l'écran courant, et le passage à un autre
-  …
+export default function InvoiceList() {           // PascalCase of the slug
+  const density = useAxis("density");             // a state axis value, from the URL
+  const { screen, go } = useScreen();             // the current screen, and moving to another
+  const { data, loading } = useScenario("volume"); // the current scenario's data set
+  return <AxisSlot axis="filters" />;             // where a structural axis renders its value
 }
 ```
 
-L'entrée au manifest (`slug`, `name`, `author`, `description`, `load`, puis `axes`, `screens`
-optionnels) est écrite par `protolab-new` et complétée par les skills ; `load` importe
-`./protos/<slug>`.
+The manifest entry (`slug`, `name`, `author`, `description`, `load`, then optional `axes`,
+`screens`, `scenarios`, `brief`, `offDs`) is written by `protolab-new` and completed by the
+skills; `load` imports `./protos/<slug>`.
 
-## Nommage et emplacement
+## Naming and location
 
-| Élément | Forme | Exemple | À éviter |
+| Element | Form | Example | Avoid |
 |---|---|---|---|
-| Dossier | `<protosDir>/<slug>/`, slug en kebab-case | `src/lab/protos/invoice-list/` | `InvoiceList/`, `invoice_list/`, un fichier sans dossier |
-| Fichier racine | `index.tsx`, export par défaut | `index.tsx` | `InvoiceList.tsx`, un export nommé |
-| Composant | PascalCase du slug | `InvoiceList` | `Proto`, `Page`, `Index` |
-| Clé d'axe, d'écran | kebab-case, nommée d'après ce qui varie | `density`, `state`, `detail` | `Density`, `axis1` |
-| Sous-composants propres au proto | dans le dossier du proto | `invoice-list/row.tsx` | dans `componentsDir` |
+| Folder | `<protosDir>/<slug>/`, slug in kebab-case | `src/lab/protos/invoice-list/` | `InvoiceList/`, `invoice_list/`, a file without a folder |
+| Root file | `index.tsx`, default export | `index.tsx` | `InvoiceList.tsx`, a named export |
+| Component | PascalCase of the slug | `InvoiceList` | `Proto`, `Page`, `Index` |
+| Structural value | `<axis key>-<value id>.tsx`, default export, no props | `filters-side.tsx` | a value inlined in `index.tsx` |
+| Keys and ids | kebab-case, named after what varies | `density`, `side-panel`, `500` | `Density`, `axis1`, `sidePanel` |
+| Pieces of the proto | in the proto's folder | `invoice-list/row.tsx` | in `componentsDir` |
 
-## Règles
+## Rules
 
-- Le proto emploie les composants réels du projet, importés depuis `componentsDir`, sans
-  recopier ni surcharger leur style : la fidélité au design system est ce qui rend le proto
-  crédible. Une bibliothèque hors design system n'est permise que si la configuration la liste.
-- Une variation (un état, une mise en page, une densité) est un axe déclaré au manifest et lu
-  par `useAxis` ; un enchaînement d'écrans est déclaré en `screens` et piloté par `useScreen`.
-  Jamais un état local qui doublerait l'URL : l'URL est l'état, un lien doit restaurer l'écran.
-- `"use client"` ouvre le fichier dès qu'il lit un hook du lab ou a de l'interactivité ; sinon
-  il reste un composant serveur.
-- Le proto n'appelle aucun service : ses données sont dans le fichier ou dans un jeu de données
-  déclaré au manifest. Il n'ajoute aucune dépendance au projet hôte.
-- Les libellés sont dans la langue du projet hôte, même si la conversation est dans une autre.
-- Le proto est jetable et hors production (le lab est `noindex`) : ni test ni accessibilité
-  exhaustive exigés, sauf demande.
-- ❌ Un `.html` statique ou une capture à la place d'un composant.
-- ❌ Une entrée de manifest écrite à la main pour un nouveau proto : `protolab-new` l'écrit.
-- ❌ Un composant du design system copié dans le dossier du proto pour le modifier.
-- ❌ Un `useState` qui porte une variante que le panneau devrait piloter.
+- The proto uses the project's real components, imported the way the project imports them,
+  without copying or overriding their style: fidelity to the design system is what makes the
+  proto credible. A library outside the design system only if the config lists it (`ds.offDs`),
+  and the entry then says `offDs: true`.
+- A variation is declared in the manifest and read through the hooks: a mode is a state axis
+  (`useAxis`), a competing version of a block is a structural axis (`AxisSlot`), data is a
+  scenario (`useScenario`), a view is a screen (`useScreen`). Never local state that doubles the
+  URL: the URL is the state, and a link must restore the screen.
+- `"use client"` opens a file that reads a lab hook or has interactivity.
+- The proto calls no service: its data is in its folder (`data.ts`, deterministic). It adds no
+  dependency to the host.
+- Labels in the host's language, even when the conversation is in another one.
+- The proto is throwaway and outside production (the lab is `noindex`): no tests, no exhaustive
+  accessibility required unless asked.
+- ❌ A static `.html` or a screenshot instead of a component.
+- ❌ A manifest entry written by hand for a new proto: `protolab-new` writes it.
+- ❌ A design-system component copied into the proto's folder to change it.
+- ❌ A `useState` that carries a variant the panel should drive.
+- ❌ A copy of the proto folder to show another approach: that is a structural axis.
 
-## Voir aussi
+## See also
 
-- `.claude/skills/protolab-create/SKILL.md` : créer un proto ; `protolab-variant` : ajouter un axe ;
-  `protolab-ds-context` : lire le design system avant d'écrire.
-- Le README du paquet `@romeohunneaul/protolab` : le manifest, les hooks, le panneau.
+- `.claude/skills/protolab-create`, `protolab-variant`, `protolab-diverge`, `protolab-scenarios`,
+  `protolab-ds-context`, `protolab-review`.
+- The README of `@romeohunneaul/protolab`: the manifest, the hooks, the panel.
