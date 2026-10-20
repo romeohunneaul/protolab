@@ -45,7 +45,9 @@ function View({ proto, protos = [], basePath = "/lab", annotation }: { proto: Pr
           </CleanPage>
         ) : (
           <>
-            <div className={open && (compared || size) ? "sm:pr-80" : undefined} data-lab-zone>
+            {/* With a frame or a grid, the render zone covers the window left of the panel: it escapes the
+                host's layout (each frame already renders it) and scrolls on its own, never under the panel. */}
+            <div className={compared || size ? `fixed inset-0 z-40 overflow-auto bg-neutral-100 ${open ? "sm:right-80" : ""}` : undefined} data-lab-zone>
               {compared ? <CompareGrid axis={compared} size={size} /> : size ? <ViewportFrame width={size.width} height={size.height} /> : <Component />}
             </div>
             <LabPanel proto={ref(proto)} protos={protos.map(ref)} basePath={basePath} open={open} onOpenChange={setOpen} />
