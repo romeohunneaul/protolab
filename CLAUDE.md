@@ -60,7 +60,7 @@ npm run check            # the four above, in order
 
 `version` in `package.json` follows SemVer; every lot ends with a tag `vX.Y.Z` and a section in
 `CHANGELOG.md` (Keep a Changelog). Hosts pin a tag
-(`npm i -D github:romeohunneaul/protolab#v0.1.0`), never `main`.
+(`npm i -D github:romeohunneaul/protolab#v0.2.0`), never `main`.
 
 ## Where to read
 

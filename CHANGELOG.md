@@ -2,9 +2,11 @@
 
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer. Hosts pin a
-tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
+tag: `npm i -D github:romeohunneaul/protolab#v0.2.0`.
 
 ## [Unreleased]
+
+## [0.2.0] - 2026-10-21
 
 ### Added
 
