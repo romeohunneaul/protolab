@@ -300,9 +300,9 @@ function Field({
             }}
             aria-label={`Add an option to ${typeof label === "string" ? label : "this axis"}`}
             title="Add an option"
-            className="rounded px-1 text-neutral-500 hover:bg-neutral-800 hover:text-white"
+            className="rounded px-1.5 py-0.5 text-[11px] text-neutral-300 hover:bg-neutral-800 hover:text-white"
           >
-            +
+            + Add
           </button>
         )}
       </span>
