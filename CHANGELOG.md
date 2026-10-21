@@ -17,6 +17,29 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   screens or more), the scenarios and the `Off design system` mark, and an empty state.
 - `examples/next`: `flow` extended with a checkout in three steps, a structural `layout` axis
   for the list and a `volume` scenario.
+- `protolab-check`: validates the manifest against the contract (twelve rules, every error
+  listed in manifest order, exit 1), with `@romeohunneaul/protolab` stubbed so the engine is
+  never loaded. Needs Node 22.6+ (type stripping).
+- `protolab-init`: the design-system step (detects `.storybook/` and `components.json`, asks
+  where the design system is documented and which libraries are allowed outside it, writes the
+  `ds` block, patches an existing config without it); writes the new proto page shape (server
+  page plus `proto.tsx`); signals a v1 page instead of writing next to it; refuses to run
+  without `package.json` or an `app/` folder; the `Next:` block names `protolab-check` and the
+  same-origin iframe requirement. All three CLIs refuse a `protolab.config.json` that is not JSON.
+
+- The lab panel is a drawer on the right with three tabs: `Variants`, `Viewport` (presets
+  `Phone`, `Tablet`, `Laptop`, `Desktop`, `Free size`, `Custom`; the clean page renders in an
+  iframe of that exact size, `?v=<w>x<h>`) and `Compare` (one iframe cell per value of an axis,
+  `?compare=<key>`, `current` mark, `Open`, `Exit comparison`); `Copy clean link`; the current
+  state in the footer; `Copied` feedback and a text field when the clipboard is unavailable.
+- The clean page (`?lab=0`): the screen alone, no tool, the link's size applied.
+- A gesture inside a frame is reported to the lab URL (ADR 0007: same-origin postMessage).
+- The `Request` tab: `Add an axis or a value`, `Change this component` (designate an element by
+  clicking it, in the page or inside the viewport frame; Escape cancels; a state change clears
+  the designation), `Add a scenario`. The lab composes a prompt (the proto, the link and the
+  state in clear, the target, the options, the intent, the instructions for a session) and
+  offers `Copy prompt` and `Open in Claude Desktop` (`claude://code/new?q=…`, no folder); it
+  writes no code. A draft is not in the URL.
 
 ### Changed
 
@@ -27,6 +50,7 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   page of the README. A manifest written for 0.1 stays valid as is.
 - An axis, a scenario or a size switch replaces the history entry; a screen or a step pushes one
   and scrolls to the top. The Back button restores the previous entry as it was.
+- `LabPanel`, when used directly, takes `open` and `onOpenChange` props.
 
 ## [0.1.0] - 2026-10-15
 

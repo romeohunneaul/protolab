@@ -17,6 +17,7 @@
   "bin": {
     "protolab-init": "./bin/protolab-init.mjs",
     "protolab-new": "./bin/protolab-new.mjs",
+    "protolab-check": "./bin/protolab-check.mjs",
     "protolab-skills": "./bin/protolab-skills.mjs"
   },
   "scripts": {

@@ -7,7 +7,7 @@ export default defineConfig({
   timeout: 30_000,
   retries: 0,
   reporter: "list",
-  use: { baseURL: "http://localhost:3100", trace: "retain-on-failure" },
+  use: { baseURL: "http://localhost:3100", trace: "retain-on-failure", permissions: ["clipboard-read", "clipboard-write"] },
   webServer: {
     command: "npm --prefix examples/next run start -- -p 3100",
     url: "http://localhost:3100/lab",

@@ -24,10 +24,15 @@ Then, from the project root:
 npx protolab-init
 ```
 
-It writes the manifest (`src/lab/manifest.ts`), the two pages (`/lab`, `/lab/p/[slug]`),
-`protolab.config.json`, and adds `transpilePackages: ["@romeohunneaul/protolab"]` to your Next
-config (the package ships TypeScript source), and an `@source` for the engine to your Tailwind
-CSS entry (Tailwind skips `node_modules`, so the panel would render unstyled without it):
+It starts with the design-system step: it detects a Storybook (`.storybook/`) and shadcn
+(`components.json`), asks where your design system is documented (a Storybook URL, a Claude
+Design project id, or nothing) and which libraries a proto may use outside it, and writes the
+answers in the `ds` block of `protolab.config.json` (without a terminal, it writes what it
+detects and tells you to edit the block). Then it writes the manifest (`src/lab/manifest.ts`),
+the two pages (`/lab`, `/lab/p/[slug]` plus its client module), `protolab.config.json`, adds
+`transpilePackages: ["@romeohunneaul/protolab"]` to your Next config (the package ships
+TypeScript source), and an `@source` for the engine to your Tailwind CSS entry (Tailwind skips
+`node_modules`, so the panel would render unstyled without it):
 
 ```css
 @import "tailwindcss";
@@ -39,8 +44,13 @@ read from `protolab.config.json` if you create it first (defaults shown):
 
 ```json
 { "protosDir": "src/lab/protos", "manifest": "src/lab/manifest.ts",
-  "componentsDir": "src/components/ui", "basePath": "/lab" }
+  "componentsDir": "src/components/ui", "basePath": "/lab",
+  "ds": { "docs": { "kind": "storybook", "url": "http://localhost:6006" }, "offDs": ["shadcn"] } }
 ```
+
+`ds.docs` is read by the skills before they write a proto; `ds.offDs` lists the libraries a
+proto may use outside your design system, and `protolab-check` refuses `offDs: true` on a proto
+when the list is empty. The engine never reads this file at runtime.
 
 <details>
 <summary>What protolab-init writes, if you prefer to wire it by hand</summary>
@@ -112,8 +122,15 @@ that returns `null` in production. The package stays free of that dependency.
 ```bash
 npx protolab-init                                              # once: wire the lab
 npx protolab-new <slug> "<Name>" "<Author>" "<Description>"   # scaffold + register
+npx protolab-check                                             # validate the manifest against the contract
 npx protolab-skills                                            # skills into .claude/skills/, proto rules into .claude/rules/
 ```
+
+`protolab-check` evaluates the manifest (Node 22.6+ with type stripping) and lists every error at
+once, in manifest order: unique kebab-case slugs, keys and ids, a default among the values, a
+`load` on every value of a structural axis and on none of a state axis, non-empty step labels,
+an existing proto folder and brief, `offDs` only with a declared allow-list. Exit code 1 when
+anything is wrong, no warnings.
 
 Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. What a proto can
 declare on its manifest entry, and how it reads it:
@@ -131,9 +148,21 @@ default (the first value unless `default` says otherwise): a stale link never sh
 state. Switching an axis, a scenario or a size replaces the history entry; moving to a screen or
 a step pushes one. Everything a proto v1 declared keeps working: `kind` absent means `state`.
 
-Every proto page carries the lab panel (bottom right, collapsible): back to the index, jump to
-another proto, then the proto's screen, step, axes and scenarios, and a link that restores the
-exact combination.
+Every proto page carries the lab panel: a drawer on the right, collapsible, that leaves the proto
+usable. Its header goes back to the index, jumps to another proto, copies the link (`Copy link`)
+or the clean link (`Copy clean link`, the same page with `?lab=0`: no tool at all, what you send
+outside). Three tabs:
+
+| Tab | What it does | In the URL |
+|---|---|---|
+| `Variants` | one selector per declared screen, step, axis and scenario | `?screen=…&step=…&a.…&s.…` |
+| `Viewport` | `Free size`, the presets `Phone` 390 × 844, `Tablet` 768 × 1024, `Laptop` 1280 × 800, `Desktop` 1440 × 900, or a `Custom` size: the clean page renders in an iframe of exactly that size | `?v=390x844` |
+| `Compare` | pick an axis: one cell per value, each an iframe of the clean page at that value, everything else fixed by the link; `Open` leaves with that value | `?compare=density` |
+| `Request` | `Add an axis or a value`, `Change this component` (click an element in the proto, in the page or in the viewport frame), `Add a scenario`: the lab composes a prompt from the manifest, the link, the designated element and your intent; `Copy prompt`, or `Open in Claude Desktop` (`claude://code/new?q=…`). It writes no code: paste the prompt in a Claude Code session on the host repo | nothing: a draft is not lab state |
+
+The footer sums up the current state. A gesture made inside a frame (a click that moves to a
+screen) is reported to the lab URL, so `Copy link` always copies what is on screen (ADR 0007).
+Frames are same-origin iframes: do not block framing of your own pages (`frame-ancestors 'self'`).
 
 ## Comments
 
@@ -198,14 +227,14 @@ your update PRs.
 | `LabDashboard` | the index page body, server component |
 | `ProtoView` | one proto inside its axes, screens and scenarios, with the lab panel; a client component. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
 | `useAxis`, `useScreen`, `useScenario`, `AxisSlot` | read an axis; read and change the current screen and step; read a scenario's data; render the current value of a structural axis |
-| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page |
+| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page (`LabPanel` takes `open` and `onOpenChange`) |
 
 ## Layout of this repo
 
 | Folder | What |
 |---|---|
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
-| `bin/` | `protolab-init`, `protolab-new`, `protolab-skills` |
+| `bin/` | `protolab-init`, `protolab-new`, `protolab-check`, `protolab-skills` |
 | `test/` | `bin.test.mjs` (node:test) and `smoke.spec.ts` (Playwright) |
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
 | `rules/` | `proto.md`, what a proto is and respects; installed into consumers' `.claude/rules/` by `protolab-skills`, with `paths` set from `protosDir` |
