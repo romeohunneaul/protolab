@@ -222,10 +222,10 @@ Releases are tagged `vX.Y.Z`, one per lot, with their notes in `CHANGELOG.md`. P
 than `main`:
 
 ```bash
-npm i -D github:romeohunneaul/protolab#v0.1.0
+npm i -D github:romeohunneaul/protolab#v0.2.0
 ```
 
-A range works too (`github:romeohunneaul/protolab#semver:^0.1.0`) if a bot such as Renovate opens
+A range works too (`github:romeohunneaul/protolab#semver:^0.2.0`) if a bot such as Renovate opens
 your update PRs.
 
 ## What's in the box
