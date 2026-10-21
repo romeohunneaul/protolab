@@ -34,6 +34,11 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.1.0`.
   state in the footer; `Copied` feedback and a text field when the clipboard is unavailable.
 - The clean page (`?lab=0`): the screen alone, no tool, the link's size applied.
 - A gesture inside a frame is reported to the lab URL (ADR 0007: same-origin postMessage).
+- Skills v2: `protolab-variant` (state or structural axis, screens and steps), `protolab-diverge`
+  (N approaches as one structural axis, then converge), `protolab-scenarios` (deterministic data
+  sets), `protolab-ds-context` (reads the `ds` block: Storybook, Claude Design, allowed
+  libraries), `protolab-create` (brief, jobs, Mobbin references, hands over to the others),
+  `protolab-review` (Vercel Comments to changes). Skills and `rules/proto.md` are now in English.
 - The `Request` tab: `Add an axis or a value`, `Change this component` (designate an element by
   clicking it, in the page or inside the viewport frame; Escape cancels; a state change clears
   the designation), `Add a scenario`. The lab composes a prompt (the proto, the link and the

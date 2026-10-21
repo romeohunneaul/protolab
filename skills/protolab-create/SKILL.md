@@ -1,76 +1,83 @@
 ---
 name: protolab-create
-description: Crée un prototype dans le lab du projet hôte (dossier des protos + entrée au manifest, via le scaffolder `protolab-new`) en réutilisant les vrais composants du projet. À utiliser quand l'utilisateur dit "nouveau proto", "prototype la feature X", "crée un proto pour…", ou veut essayer une idée d'écran ou d'interaction. Génère un composant fidèle au design system, jamais une maquette HTML statique.
+description: Creates a prototype in the host's lab - its folder and its manifest entry through protolab-new - built with the project's real components, from the user's intent, the feature's brief and jobs when they exist, and optionally references from Mobbin; offers several approaches straight away when the intent is open. Use when the user says "nouveau proto", "prototype la feature X", "crée un proto pour…", "new proto", or wants to try a screen or an interaction idea. Produces a React component faithful to the design system, never a static HTML mock-up.
 ---
 
-# protolab — créer un prototype
+# protolab: create a prototype
 
-Objectif : passer d'une intention de feature à un écran qui tourne à `<basePath>/p/<slug>`, en
-**réutilisant les composants du projet**. La métrique qui compte est le temps entre « j'ai une
-idée » et « je la vois à l'écran », pas la cérémonie.
+Goal: from a feature intent to a screen running at `<basePath>/p/<slug>`, built with **the
+project's components**. The metric is the time between "I have an idea" and "I see it on
+screen", not the ceremony.
 
-**PRÉREQUIS :** lire `.claude/rules/proto.md` en entier (installée par `protolab-skills`) : la
-structure, le nommage et les règles d'un proto y sont ; cette skill porte le comment.
+> Every rule is paid by the agent, not by the user. Never block on a gap you can fix alone.
+> On a product arbitrage, `AskUserQuestion` with proposed defaults.
 
-> **Principe.** Toute règle est payée par l'agent, pas par l'utilisateur. Ne bloque jamais sur
-> un défaut que tu peux corriger seul. Au moindre arbitrage produit → `AskUserQuestion`.
+**Before writing:** read `.claude/rules/proto.md` (structure, naming, rules of a proto) and
+`protolab.config.json` (`protosDir`, `manifest`, `componentsDir`, `basePath`, `ds`).
 
-## Configuration
+## 1. Gather the context, in this order
 
-Les chemins viennent de `protolab.config.json` à la racine du projet (défauts entre parenthèses) :
-`protosDir` (`src/lab/protos`), `manifest` (`src/lab/manifest.ts`), `componentsDir`
-(`src/components/ui`), `basePath` (`/lab`). Le lire avant de commencer ; ne jamais supposer un
-autre chemin.
+1. **The intent**: restate it in one or two sentences, plus the visible states it implies (empty,
+   loading, error, a long list). Note the ambiguities; do not guess them.
+2. **The brief and the jobs**, when they exist: a brief file the user points to (it becomes the
+   entry's `brief` field), and the jobs of the feature in the host's product repo (a `jtbd.md`).
+   They give the directions and the edge cases.
+3. **What exists**: if the feature touches a coded area of this repo, read it; the proto should
+   look like the product, not start from scratch.
 
-## Étape 0 — Contexte de la feature
+A source that is not reachable from this repo (the live site lives elsewhere, there is no product
+repo, no brief) is skipped: say which ones, and continue. Do not search the disk for them.
+4. **The design system**: run `protolab-ds-context`.
+5. **References** (optional): if a Mobbin tool is available, look at two or three products that
+   solve the same screen.
 
-Avant de coder, réunis le contexte, dans cet ordre :
-1. **Ce que l'utilisateur décrit** : l'intention. Reformule en 1 à 2 phrases plus les états
-   visibles attendus. Note les ambiguïtés, ne les devine pas.
-2. **L'existant du projet** : si la feature touche une zone déjà codée, lis-la. Le proto doit
-   ressembler à l'existant, pas partir de zéro.
-3. **Le design system** : lance `protolab-ds-context` pour savoir quels composants tu as le
-   droit d'employer.
+If the intent is too vague for a screen, `AskUserQuestion` with proposed defaults.
 
-Si l'intention est trop vague pour un écran → `AskUserQuestion` avec des défauts proposés,
-jamais un blocage sec.
+## 2. Scaffold
 
-## Étape 1 — Scaffolder
-
-Un proto = un dossier + une entrée manifest. **Le scaffolder crée les deux.** Ne les écris pas
-à la main : une insertion manuelle dans le tableau casse vite `load:` ou la virgule.
-
-```
-npx protolab-new <slug> "<Nom>" "<Auteur>" "<Description>"
+```bash
+npx protolab-new <slug> "<Name>" "<Author>" "<Description>"
 ```
 
-- `slug` en kebab-case (le script le vérifie et refuse un doublon).
-- Il crée `<protosDir>/<slug>/index.tsx` (composant standalone de départ) et insère l'entrée
-  dans le manifest (`load` compris), puis imprime `<basePath>/p/<slug>`.
+It creates `<protosDir>/<slug>/index.tsx` and appends the entry (with `load`) to the manifest,
+then prints `<basePath>/p/<slug>`. Never write the entry by hand: a manual insertion breaks
+`load` or a comma. `slug` in kebab-case.
 
-## Étape 2 — Construire dedans
+## 3. Build
 
-Édite `<protosDir>/<slug>/index.tsx` :
-- `"use client"` en tête **si** le proto lit un axe (`useAxis`) ou a de l'interactivité (déjà
-  présent dans le fichier de départ).
-- Importe les composants réels depuis `<componentsDir>`, jamais recopier leur style.
-- Langue des libellés : celle du projet hôte, même si l'échange est dans une autre langue.
-- Pour des variantes (états, layouts) → enchaîne avec `protolab-variant` (ajoute les `axes` au
-  manifest et les `useAxis` dans le composant).
+Edit `<protosDir>/<slug>/index.tsx`:
 
-## Étape 3 — Vérifier
+- import the real components the way `protolab-ds-context` said; never copy their style;
+- labels in the host's language: the `lang` of its root layout, else the language of the
+  existing protos;
+- content only the user knows (what they work on, their clients, their numbers): write plausible
+  placeholders in `data.ts`, mark them as placeholders in a comment, and say so in your reply.
+  Never present invented facts as real;
+- several views (list → detail, a flow in steps): declare `screens` and `steps` and move with
+  `useScreen` (`protolab-variant`, section 4);
+- `"use client"` when the file reads a lab hook or has interactivity.
 
-- Le code compile : `npx tsc --noEmit` (ou le check du projet).
-- **Ne pas** lancer l'app pour juger le rendu à la place de l'utilisateur : la vérification
-  visuelle se fait dans le navigateur, c'est son travail. Toi tu garantis que ça compile et que
-  le design system est respecté.
-- Donne l'URL : `<basePath>/p/<slug>`.
+Then, depending on the request:
 
-## Règles
+| The user wants | Next |
+|---|---|
+| Several approaches, or the intent is open ("explore", "propose") | `protolab-diverge` |
+| States: empty, loading, error, compact | `protolab-variant` |
+| Realistic data: volumes, roles, personas | `protolab-scenarios` |
 
-- **Livrable = composant React standalone** réutilisant le design system. Un `.html` statique
-  n'est jamais valide.
-- **Jamais inventer** un composant, une prop, une classe : vérifie via `protolab-ds-context`.
-- **CSS custom = dernier recours**, en classes ou tokens du projet uniquement, après validation.
-- Le proto est **jetable et hors prod** (le lab est `noindex`) : pas de test, pas d'a11y
-  exhaustive exigés, sauf si l'utilisateur le demande.
+## 4. Verify, then hand over
+
+1. `npx protolab-check`: 0 errors.
+2. The project's typecheck (`npx tsc --noEmit` or its script).
+3. Do **not** run the app to judge the render in the user's place: you guarantee that it
+   compiles and that the design system is respected; the visual check is theirs.
+4. Give the link: `<basePath>/p/<slug>`.
+
+## Rules
+
+- **Deliverable = a standalone React component** reusing the design system. A static `.html` is
+  never valid.
+- **Never invent** a component, a prop or a class: check with `protolab-ds-context`.
+- **Custom CSS = last resort**, with the project's classes or tokens only, after validation.
+- The proto is **throwaway and outside production** (the lab is `noindex`): no tests, no
+  exhaustive accessibility required unless the user asks.

@@ -1,41 +1,55 @@
 ---
 name: protolab-ds-context
-description: Récupère le design system disponible pour un prototype du lab : les composants codés du projet hôte (dossier `componentsDir` de protolab.config.json, et leurs stories Storybook s'il y en a) et, en amont, la source design déclarée par le projet. À utiliser AVANT d'écrire ou de modifier un proto, quand l'utilisateur dit "quels composants j'ai", "récupère le storybook", "prototype avec le DS", ou dès que protolab-create doit choisir un composant. Ne jamais inventer un composant ou une prop : ce que cette skill ne trouve pas n'existe pas.
+description: Gathers the design system a proto may use - the host's coded components (componentsDir of protolab.config.json, with their stories), the documentation declared in the ds block (a Storybook, a Claude Design project, or none) and the libraries allowed outside the design system. Use BEFORE writing or changing a proto, when the user says "quels composants j'ai", "récupère le storybook", "prototype avec le DS", and whenever protolab-create, protolab-variant or protolab-diverge must pick a component. Never invent a component or a prop - what this skill does not find does not exist.
 ---
 
-# protolab — contexte design system
+# protolab: design system context
 
-> Règle absolue : tu ne connais un composant qu'après avoir lu son fichier dans le dossier des
-> composants du projet. La donnée d'entraînement n'est jamais une source. Si tu n'as pas lu le
-> fichier, tu ne sais pas.
+> You know a component only after reading its file in the host's components folder. Training
+> data is never a source: if you have not read the file, you do not know.
 
-## 1. Composants codés = source primaire
+## 1. Read the config
 
-Le dossier est `componentsDir` de `protolab.config.json` (défaut `src/components/ui`). Chaque
-composant a un `.tsx` et souvent un `.stories.tsx` qui documente ses états.
+`protolab.config.json` at the host root:
 
-- Lister : `ls <componentsDir>/*.tsx | grep -v '\.stories\.\|\.test\.'`
-- Pour un composant retenu, lire **son `.tsx`** (props, variants réels) **et son `.stories.tsx`**
-  (les états que le designer a jugé dignes d'être montrés : c'est le contrat d'usage).
-- Les classes utilitaires maison du projet sont définies dans sa feuille globale (souvent
-  `src/app/globals.css`). Les réutiliser, ne pas réinventer une couleur en dur.
+- `componentsDir` (default `src/components/ui`): the coded components, the primary source.
+- `ds.docs`: where the design system is documented beyond the code.
+- `ds.offDs`: libraries a proto may use outside the design system (`["shadcn"]`). Absent or
+  empty: none.
 
-Ne jamais inventer une prop ou un variant. Vérifie dans le `.tsx` avant d'écrire.
+## 2. The coded components, primary source
 
-## 2. Source design en amont (secondaire)
+- List them: `ls <componentsDir>` (skip `*.stories.*`, `*.test.*`).
+- For each component the task needs, read its source (props, variants) **and** its stories when
+  they exist (the states the designer chose to show: the usage contract).
+- **How the protos import them**: read an existing proto or the host's own pages and copy the
+  import. When `componentsDir` sits inside `node_modules` (a design-system package), import from
+  the package name (`import { Button } from "@scope/ds"`), never from a file path.
+- The host's utility classes and tokens live in its global stylesheet (often
+  `src/app/globals.css`): reuse them, never hard-code a colour.
 
-Si le projet déclare une source design (Figma, Claude Design, un Storybook publié : voir son
-`CLAUDE.md` ou `design/rules.md`), la consulter quand une intention design existe mais n'a pas
-encore d'équivalent codé, pour décider s'il faut composer avec l'existant ou signaler un manque.
+## 3. The declared documentation, secondary
 
-## 3. Restitution
+| `ds.docs` | What to read |
+|---|---|
+| `{ kind: "storybook", url }` | `<url>/index.json`: the list of components and their stories. A local Storybook (`localhost`) may not be running: if the fetch fails, say so and rely on the code |
+| `{ kind: "claude-design", projectId }` | The project through the `DesignSync` tool, read only (`list_files`, `get_file`): `tokens.json`, the README, the previews. The components a proto uses stay those of `componentsDir` |
+| absent | The code only |
 
-Rends une courte liste : composants pertinents pour la tâche, leurs props et états réels, et
-les **trous** (ce que la feature demande et qu'aucun composant ne couvre). Le trou est un signal
-produit, pas une invitation à écrire du CSS custom : le signaler, demander via
-`AskUserQuestion` si un repli est acceptable.
+Consult it when an intention has no coded equivalent yet, to decide whether to compose with what
+exists or to report a gap.
 
-## Ce que cette skill ne fait pas
+## 4. Hand over
 
-Elle ne code rien. Elle prépare `protolab-create` et `protolab-variant`. CSS custom = dernier
-recours, jamais sans validation explicite.
+A short list: the components relevant to the task with their real props and states, how to
+import them, and the **gaps** (what the task needs and no component covers: no `Tabs`, no side
+panel). A gap is a product signal, not an invitation to write custom CSS:
+
+- compose with existing components when a faithful composition exists (chips as tabs), and say so;
+- or use a library listed in `ds.offDs`, and mark the proto `offDs: true` in the manifest;
+- otherwise ask (`AskUserQuestion`) whether a fallback is acceptable.
+
+## What this skill does not do
+
+It writes no code. It prepares `protolab-create`, `protolab-variant` and `protolab-diverge`.
+Custom CSS is a last resort, never without the user's explicit go.
