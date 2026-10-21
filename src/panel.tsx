@@ -20,11 +20,11 @@ import {
   useWriteParams,
   viewportValue,
 } from "./variants";
-import { RequestTab } from "./request";
+import { ExploreTab, type Seed } from "./explore";
 
 type Ref = { slug: string; name: string; offDs?: boolean };
 type Option = { id: string; label: string };
-type Tab = "Variants" | "Viewport" | "Compare" | "Request";
+type Tab = "Variants" | "Viewport" | "Compare" | "Explore";
 
 /** The viewport presets, the same for every host and every proto; a missing size goes in Custom. */
 export const PRESETS: { label: string; width: number; height: number }[] = [
@@ -36,7 +36,7 @@ export const PRESETS: { label: string; width: number; height: number }[] = [
 
 /**
  * The lab chrome on a proto page: a non-modal drawer on the right, with a header (back to the
- * index, the proto, the links), four tabs (Variants, Viewport, Compare, Request) and the current state
+ * index, the proto, the links), four tabs (Variants, Viewport, Compare, Explore) and the current state
  * in the footer. Collapses to a button. Its open state and tab are not lab state: not in the URL.
  */
 export function LabPanel({
@@ -60,6 +60,12 @@ export function LabPanel({
   const [tab, setTab] = useState<Tab>(compared ? "Compare" : "Variants");
   const [copied, setCopied] = useState<string | null>(null);
   const [fallback, setFallback] = useState<string | null>(null);
+  // A "+" next to an axis or a scenario opens Explore with its text ready to complete.
+  const [seed, setSeed] = useState<Seed | undefined>(undefined);
+  const explore = (text: string) => {
+    setSeed((prev) => ({ text, n: (prev?.n ?? 0) + 1 }));
+    setTab("Explore");
+  };
   const search = params.toString();
   useEffect(() => setFallback(null), [search]);
 
@@ -132,7 +138,7 @@ export function LabPanel({
         {fallback && <input readOnly value={fallback} autoFocus onFocus={(e) => e.currentTarget.select()} className="mt-2 w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs" aria-label="Link to copy" />}
       </div>
       <nav className="flex border-b border-neutral-800 text-xs" role="tablist">
-        {(["Variants", "Viewport", "Compare", "Request"] as Tab[]).map((t) => (
+        {(["Variants", "Viewport", "Compare", "Explore"] as Tab[]).map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 px-3 py-2 ${tab === t ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white"}`}>
             {t}
           </button>
@@ -140,7 +146,7 @@ export function LabPanel({
       </nav>
       <div className="flex-1 overflow-y-auto p-3">
         <div hidden={tab !== "Variants"} className="grid gap-2">
-            {screens.length === 0 && axes.length === 0 && scenarios.length === 0 && <p className="text-xs text-neutral-500">No variants declared</p>}
+            {screens.length === 0 && axes.length === 0 && scenarios.length === 0 && <p className="text-xs text-neutral-500">No variants declared yet</p>}
             {screens.length > 0 && (
               <Field label="Screen" value={screenValue(screens, params)} options={screens.map((s) => ({ id: s.key, label: s.label }))} onChange={(key) => write({ [SCREEN_PARAM]: key, [STEP_PARAM]: null }, "push")} />
             )}
@@ -156,12 +162,23 @@ export function LabPanel({
                 value={axisValue(axis, params)}
                 options={axis.values}
                 onChange={(id) => write({ [axisParam(axis.key)]: id }, "replace")}
+                onAdd={() => explore(`Add an option to "${axis.label}": `)}
               />
             ))}
             {scenarios.length > 0 && <p className="mt-1 text-[10px] uppercase tracking-wide text-neutral-500">Scenarios</p>}
             {scenarios.map((scenario) => (
-              <Field key={scenario.key} label={scenario.label} value={scenarioValue(scenario, params)} options={scenario.values} onChange={(id) => write({ [scenarioParam(scenario.key)]: id }, "replace")} />
+              <Field
+                key={scenario.key}
+                label={scenario.label}
+                value={scenarioValue(scenario, params)}
+                options={scenario.values}
+                onChange={(id) => write({ [scenarioParam(scenario.key)]: id }, "replace")}
+                onAdd={() => explore(`Add a case to "${scenario.label}": `)}
+              />
             ))}
+            <button type="button" onClick={() => explore("")} className="mt-1 justify-self-start rounded-md border border-dashed border-neutral-600 px-2 py-1 text-xs text-neutral-300 hover:border-neutral-400 hover:text-white">
+              + Explore a variant
+            </button>
         </div>
         <div hidden={tab !== "Viewport"}>
           <ViewportTab size={size} onChange={(v) => write({ [VIEWPORT_PARAM]: v }, "replace")} />
@@ -173,8 +190,8 @@ export function LabPanel({
             <CompareTab axes={axes.map((a) => ({ id: a.key, label: a.label }))} compared={compared?.key} onCompare={(key) => write({ [COMPARE_PARAM]: key }, "push")} onExit={() => write({ [COMPARE_PARAM]: null }, "push")} />
           )}
         </div>
-        <div hidden={tab !== "Request"}>
-          <RequestTab proto={proto} compared={!!compared} framed={!!size && !compared} />
+        <div hidden={tab !== "Explore"}>
+          <ExploreTab proto={proto} basePath={basePath} compared={!!compared} framed={!!size && !compared} seed={seed} />
         </div>
       </div>
       <p className="truncate border-t border-neutral-800 px-3 py-2 text-[10px] text-neutral-500" title={state} data-lab-state>
@@ -250,12 +267,44 @@ function CompareTab({ axes, compared, onCompare, onExit }: { axes: Option[]; com
   );
 }
 
-function Field({ label, hint, value, options, onChange, disabled }: { label: ReactNode; hint?: string; value: string; options: Option[]; onChange: (id: string) => void; disabled?: boolean }) {
+function Field({
+  label,
+  hint,
+  value,
+  options,
+  onChange,
+  disabled,
+  onAdd,
+}: {
+  label: ReactNode;
+  hint?: string;
+  value: string;
+  options: Option[];
+  onChange: (id: string) => void;
+  disabled?: boolean;
+  onAdd?: () => void;
+}) {
   return (
     <label className="grid gap-0.5 text-[11px] text-neutral-400">
-      <span>
-        {label}
-        {hint && <span className="ml-2 text-neutral-500">{hint}</span>}
+      <span className="flex items-center justify-between">
+        <span>
+          {label}
+          {hint && <span className="ml-2 text-neutral-500">{hint}</span>}
+        </span>
+        {onAdd && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onAdd();
+            }}
+            aria-label={`Add an option to ${typeof label === "string" ? label : "this axis"}`}
+            title="Add an option"
+            className="rounded px-1 text-neutral-500 hover:bg-neutral-800 hover:text-white"
+          >
+            +
+          </button>
+        )}
       </span>
       <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-white disabled:opacity-50">
         {options.map((o) => (

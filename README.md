@@ -141,6 +141,13 @@ once, in manifest order: unique kebab-case slugs, keys and ids, a default among 
 an existing proto folder and brief, `offDs` only with a declared allow-list. Exit code 1 when
 anything is wrong, no warnings.
 
+**Adding a variant is a sentence to Claude Code**, in a session opened on your project: "on the
+reading list, try the filters in a side panel", "add a compact density", "propose 3 approaches of
+this page", "test with 0, 12 and 500 items". The skills decide whether it is a state axis, a
+structural axis, approaches or a scenario, write it, and give you the link to compare. You do
+not need the vocabulary below; it is here for when you edit a proto by hand. From the lab, the
+`Explore` tab writes that sentence for you, with the proto and its current state.
+
 Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. What a proto can
 declare on its manifest entry, and how it reads it:
 
@@ -167,7 +174,7 @@ outside). Three tabs:
 | `Variants` | one selector per declared screen, step, axis and scenario | `?screen=…&step=…&a.…&s.…` |
 | `Viewport` | `Free size`, the presets `Phone` 390 × 844, `Tablet` 768 × 1024, `Laptop` 1280 × 800, `Desktop` 1440 × 900, or a `Custom` size: the clean page renders in an iframe of exactly that size | `?v=390x844` |
 | `Compare` | pick an axis: one cell per value, each an iframe of the clean page at that value, everything else fixed by the link; `Open` leaves with that value | `?compare=density` |
-| `Request` | `Add an axis or a value`, `Change this component` (click an element in the proto, in the page or in the viewport frame), `Add a scenario`: the lab composes a prompt from the manifest, the link, the designated element and your intent; `Copy prompt`, or `Open in Claude Desktop` (`claude://code/new?q=…`). It writes no code: paste the prompt in a Claude Code session on the host repo | nothing: a draft is not lab state |
+| `Explore` | one field, "what do you want to try?", in your own words ("try the filters in a side panel", "add a compact density", "propose 3 approaches", "test with 0, 12 and 500 items"), and optionally an element you point at, in the page or in the viewport frame. The lab composes a prompt; Claude Code, opened on the host repo, decides with the skills whether it is a new value, an axis, approaches or a scenario, writes it and gives you the comparison link. `Copy prompt`, or `Open in Claude Desktop`. The `+` next to an axis or a scenario in `Variants` opens it prefilled. The lab never changes the code | nothing: a draft is not lab state |
 
 The footer sums up the current state. A gesture made inside a frame (a click that moves to a
 screen) is reported to the lab URL, so `Copy link` always copies what is on screen (ADR 0007).
