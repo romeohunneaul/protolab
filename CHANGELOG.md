@@ -6,6 +6,17 @@ tag: `npm i -D github:romeohunneaul/protolab#v0.2.0`.
 
 ## [Unreleased]
 
+### Changed
+
+- The `Request` tab becomes `Explore`: one field, "what do you want to try?", with clickable
+  examples and an optional element to point at, instead of three forms that asked the user to
+  classify the request (axis, value, scenario). The prompt asks Claude Code to decide what it is
+  with the skills, and to give the comparison links.
+- `Variants`: a `+` next to each axis and scenario opens `Explore` prefilled ("Add an option to
+  \"Density\": "), and `+ Explore a variant` below the selectors. The tabs stay mounted, so a
+  draft survives a tab switch.
+- README: adding a variant is a sentence to Claude Code; the vocabulary is for editing by hand.
+
 ## [0.2.0] - 2026-10-21
 
 ### Added
