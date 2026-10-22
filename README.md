@@ -217,23 +217,18 @@ npm run update:protolab
 `protolab-init` adds that script to your `package.json`. It runs:
 
 ```bash
-npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && npx protolab-skills
+npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && protolab-skills && protolab-check
 ```
 
-The first half moves the pin to the latest commit on `main`. The second recopies the agent skills
-into `.claude/skills/`: they are copies, so they do not follow the package on their own. Commit
-`package-lock.json` and `.claude/skills/` afterwards, so every clone of your project runs the same
-version.
+It moves the pin to the latest commit on `main`, recopies the agent skills and the proto rule into
+`.claude/` (they are copies, so they do not follow the package on their own), and checks your
+manifest against the contract. Commit `package-lock.json` and `.claude/` afterwards, so every clone
+of your project runs the same engine. If something breaks, `git checkout package-lock.json` and
+`npm ci` bring the previous engine back.
 
-Releases are tagged `vX.Y.Z`, one per lot, with their notes in `CHANGELOG.md`. Pin a tag rather
-than `main`:
-
-```bash
-npm i -D github:romeohunneaul/protolab#v0.2.0
-```
-
-A range works too (`github:romeohunneaul/protolab#semver:^0.2.0`) if a bot such as Renovate opens
-your update PRs.
+Hosts follow `main`: there are no release tags to pin. What changed, and any migration step, is
+under `Unreleased` in `CHANGELOG.md`. Tags and versions come back when the package has hosts whose
+authors do not follow its development.
 
 ## What's in the box
 
@@ -255,7 +250,7 @@ your update PRs.
 | `skills/` | the agent skills, copied into consumers by `protolab-skills` |
 | `rules/` | `proto.md`, what a proto is and respects; installed into consumers' `.claude/rules/` by `protolab-skills`, with `paths` set from `protosDir` |
 | `examples/next/` | a minimal Next app wired to the local engine (`file:../..`): edits in `src/` show live |
-| `docs/adr/` | one short ADR per decision; `CHANGELOG.md` at the root lists each tagged release |
+| `docs/adr/` | one short ADR per decision; `CHANGELOG.md` at the root lists what changed, with migration steps |
 | `CLAUDE.md` | the rules, verification commands and definition of done for contributors and agents |
 
 Run the example:

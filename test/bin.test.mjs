@@ -37,7 +37,7 @@ test("protolab-init wires the host: config, manifest, two pages, next.config, Ta
   }
   assert.match(read("next.config.ts"), /transpilePackages: \["@romeohunneaul\/protolab"\]/);
   assert.match(read("src/app/globals.css"), /@source ".*node_modules\/@romeohunneaul\/protolab\/src";/);
-  assert.equal(JSON.parse(read("package.json")).scripts["update:protolab"], "npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && protolab-skills");
+  assert.equal(JSON.parse(read("package.json")).scripts["update:protolab"], "npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && protolab-skills && protolab-check");
   assert.match(read("src/lab/manifest.ts"), /defineProtos\(\[\n\]\);/);
   // Non-interactive: the design-system step detects, writes an empty ds block, and says what to do.
   assert.match(out, /! design system docs not set: run protolab-init in a terminal/);

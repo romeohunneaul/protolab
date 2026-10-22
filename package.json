@@ -1,6 +1,6 @@
 {
   "name": "@romeohunneaul/protolab",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "From a feature intent to a running screen, built with the host project's own components.",
   "license": "MIT",
   "type": "module",

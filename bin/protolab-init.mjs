@@ -156,7 +156,7 @@ pkg.scripts ??= {};
 if (pkg.scripts["update:protolab"]) {
   console.log("= kept    package.json (update:protolab already set)");
 } else {
-  pkg.scripts["update:protolab"] = "npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && protolab-skills";
+  pkg.scripts["update:protolab"] = "npm i -D @romeohunneaul/protolab@github:romeohunneaul/protolab && protolab-skills && protolab-check";
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
   console.log("✓ patched package.json (script update:protolab)");
 }
@@ -166,5 +166,5 @@ Next:
   npx protolab-skills                                   # agent skills into .claude/skills/, proto rules into .claude/rules/
   npx protolab-new <slug> "<Name>" "<Author>" "<Desc>"  # first proto → ${config.basePath}/p/<slug>
   npx protolab-check                                    # validate the manifest against the contract
-  npm run update:protolab                               # later: follow the engine
+  npm run update:protolab                               # later: follow the engine (main), refresh the skills, check
 ! the lab renders protos in same-origin iframes (viewport, comparison): do not block framing of your own pages (frame-ancestors 'self')`);
