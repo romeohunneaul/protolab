@@ -139,7 +139,7 @@ export function ExploreTab({
       </label>
       {!text && (
         <div className="grid gap-1" data-lab-examples>
-          <p className="text-[10px] uppercase tracking-wide text-neutral-500">For example</p>
+          <p className="text-[11px] uppercase tracking-wide text-neutral-400">For example</p>
           {EXAMPLES.map((ex) => (
             <button key={ex} type="button" onClick={() => setText(ex)} className="rounded px-2 py-1 text-left text-xs text-neutral-300 hover:bg-neutral-800/60">
               “{ex}”
@@ -151,22 +151,22 @@ export function ExploreTab({
         {element && (
           <p className="rounded bg-neutral-800 px-2 py-1" data-lab-designated>
             <code>&lt;{element.tag}&gt;</code> {element.text && `“${element.text}”`}
-            <span className="block truncate text-[10px] text-neutral-500" title={element.path}>
+            <span className="block truncate text-[11px] text-neutral-400" title={element.path}>
               {element.path}
             </span>
           </p>
         )}
         {compared ? (
-          <p className="text-[10px] text-neutral-500">Open a cell to point at an element</p>
+          <p className="text-[11px] text-neutral-400">Open a cell to point at an element</p>
         ) : designating ? (
           <p className="text-[11px] text-amber-400">Click an element in the prototype · Esc to cancel</p>
         ) : (
-          <button type="button" onClick={() => setDesignating(true)} className="justify-self-start text-[11px] text-neutral-400 underline-offset-2 hover:text-white hover:underline">
+          <button type="button" onClick={() => setDesignating(true)} className="min-h-6 justify-self-start text-[11px] text-neutral-300 underline-offset-2 hover:text-white hover:underline">
             {element ? "Point at another element" : "Point at an element (optional)"}
           </button>
         )}
       </div>
-      {ready && <textarea ref={preview} readOnly value={prompt} rows={5} aria-label="Prompt" className={`${fieldCls} font-mono text-[10px] text-neutral-400`} data-lab-prompt />}
+      {ready && <textarea ref={preview} readOnly value={prompt} rows={5} aria-label="Prompt" className={`${fieldCls} font-mono text-[11px] text-neutral-300`} data-lab-prompt />}
       <div className="flex flex-wrap gap-2">
         <button type="button" disabled={!ready} onClick={() => copy(false)} className="rounded-md bg-white px-2 py-1 text-xs text-black disabled:opacity-40">
           Copy prompt
@@ -182,14 +182,16 @@ export function ExploreTab({
               setElement(null);
               setNotice(null);
             }}
-            className="text-[11px] text-neutral-400 hover:text-white"
+            className="min-h-6 text-[11px] text-neutral-300 hover:text-white"
           >
             Clear
           </button>
         )}
       </div>
-      {notice && <p className={`text-[11px] ${failed ? "text-amber-400" : "text-neutral-400"}`}>{notice}</p>}
-      <p className="text-[10px] leading-relaxed text-neutral-500">
+      <p className={`text-[11px] ${failed ? "text-amber-400" : "text-neutral-400"}`} aria-live="polite">
+        {notice}
+      </p>
+      <p className="text-[11px] leading-relaxed text-neutral-400">
         Claude Code writes the change with the Protolab skills, then gives you the link to compare. The lab never changes the code.
       </p>
     </div>

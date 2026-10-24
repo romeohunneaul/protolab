@@ -58,6 +58,7 @@ export const isCleanPage = (params: Params) => params.get(LAB_PARAM) === "0";
  * Write search params in one history entry: a string sets, null deletes. Nothing else in the URL
  * moves: the engine never removes a param it does not own. "push" (a screen, a step) adds an
  * entry and scrolls to the top; "replace" (an axis, a scenario, a size) keeps the entry and the scroll.
+ * Builds on the URL at call time, not at render time, so a write right after another keeps it.
  */
 export function useWriteParams() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export function useWriteParams() {
   const params = useSearchParams();
   return useCallback(
     (changes: Record<string, string | null>, history: "push" | "replace") => {
-      const next = new URLSearchParams(params);
+      const next = new URLSearchParams(typeof window === "undefined" ? params : window.location.search);
       for (const [key, value] of Object.entries(changes)) value === null ? next.delete(key) : next.set(key, value);
       const query = next.toString();
       router[history](query ? `${pathname}?${query}` : pathname, { scroll: history === "push" });

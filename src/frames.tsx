@@ -62,6 +62,16 @@ export function useFrameReports(ignoredAxis?: string) {
   }, [params, write, ignoredAxis]);
 }
 
+// Same params in another order are the same link: a frame never reloads for an order change.
+const sameLink = (a: string, b: string) => {
+  const sorted = (s: string) => {
+    const p = new URLSearchParams(s);
+    p.sort();
+    return p.toString();
+  };
+  return sorted(a) === sorted(b);
+};
+
 /** One frame: loads the internal link once, then follows the lab URL without reloading what it already shows. */
 function Frame({ search, width, height, className, title }: { search: string; width?: number; height?: number; className?: string; title: string }) {
   const pathname = usePathname();
@@ -69,10 +79,9 @@ function Frame({ search, width, height, className, title }: { search: string; wi
   const initial = useRef(`${pathname}?${search}`);
   useEffect(() => {
     const frame = ref.current;
-    const wanted = `${pathname}?${search}`;
     const current = frame?.contentWindow?.location;
     if (!frame || !current) return;
-    if (`${current.pathname}${current.search}` !== wanted) current.replace(wanted);
+    if (current.pathname !== pathname || !sameLink(current.search, search)) current.replace(`${pathname}?${search}`);
   }, [pathname, search]);
   return (
     <iframe
@@ -80,18 +89,21 @@ function Frame({ search, width, height, className, title }: { search: string; wi
       src={initial.current}
       title={title}
       style={width && height ? { width, height } : undefined}
-      className={`block border-0 bg-white ${className ?? ""}`}
+      className={`block shrink-0 border-0 bg-white ${className ?? ""}`}
       data-lab-frame
     />
   );
 }
 
-/** The viewport: the proto's clean page at the link's size, exact pixels, top of the render zone, centered. */
+/**
+ * The viewport: the proto's clean page at the link's size, exact pixels, top of the render zone,
+ * centered. Never shrunk: wider than the zone, the zone scrolls (w-max keeps the left edge reachable).
+ */
 export function ViewportFrame({ width, height }: { width: number; height: number }) {
   const params = useSearchParams();
   useFrameReports();
   return (
-    <div className="flex justify-center pt-4">
+    <div className="flex w-max min-w-full justify-center p-4">
       <Frame search={internalSearch(params)} width={width} height={height} className="rounded-md shadow ring-1 ring-black/10" title="Viewport" />
     </div>
   );
@@ -107,13 +119,13 @@ export function CompareGrid({ axis, size }: { axis: Axis; size: { width: number;
   return (
     <div className={size ? "flex flex-wrap gap-4 p-4" : "grid gap-4 p-4 grid-cols-[repeat(auto-fit,minmax(360px,1fr))]"} data-lab-compare>
       {axis.values.map((value) => (
-        <section key={value.id} className={size ? "" : "flex min-h-[calc(100vh-6rem)] flex-col"} data-lab-cell={value.id}>
+        <section key={value.id} className={size ? "shrink-0" : "flex min-h-[calc(100vh-6rem)] flex-col"} data-lab-cell={value.id}>
           <header className="mb-1 flex items-baseline justify-between gap-3 text-xs">
             <span className="font-medium">
               {value.label}
               {value.id === current && <span className="ml-2 rounded-full bg-neutral-900 px-1.5 py-0.5 text-[10px] text-white">current</span>}
             </span>
-            <button type="button" onClick={() => open(value.id)} className="text-neutral-500 hover:underline">
+            <button type="button" onClick={() => open(value.id)} className="min-h-6 text-neutral-600 hover:underline">
               Open
             </button>
           </header>

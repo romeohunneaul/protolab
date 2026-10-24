@@ -202,7 +202,7 @@ a step pushes one. Everything a proto v1 declared keeps working: `kind` absent m
 Every proto page carries the lab panel: a drawer on the right, collapsible, that leaves the proto
 usable. Its header goes back to the index, jumps to another proto, copies the link (`Copy link`)
 or the clean link (`Copy clean link`, the same page with `?lab=0`: no tool at all, what you send
-outside). Three tabs:
+outside). Four tabs:
 
 | Tab | What it does | In the URL |
 |---|---|---|
