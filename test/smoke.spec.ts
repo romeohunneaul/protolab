@@ -1,7 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
 
 // The lab index, one proto, an axis switch, the URL that carries it, three sizes.
-const select = (page: Page, label: string) => page.locator("[data-lab-ui]").getByLabel(label, { exact: true });
+const panel = (page: Page) => page.locator("aside[data-lab-ui]");
+const radio = (page: Page, field: string, value: string) => panel(page).getByRole("radiogroup", { name: field }).getByRole("radio", { name: value, exact: true });
+const viewport = (page: Page) => panel(page).getByLabel("Viewport", { exact: true });
 
 test("/lab lists the example protos", async ({ page }) => {
   await page.goto("/lab");
@@ -14,12 +16,12 @@ test("an axis switch from the panel writes the URL, and the URL restores the sta
   await page.goto("/lab/p/hello");
   await expect(page.locator("[data-lab-ui]")).toBeVisible();
   await expect(page.getByText("Switch the state from the panel")).toBeVisible();
-  await select(page, "State").selectOption("empty");
+  await radio(page, "State", "Empty").click();
   await expect(page).toHaveURL(/a\.state=empty/);
   await expect(page.getByText("Nothing here yet.")).toBeVisible();
   await page.reload();
   await expect(page.getByText("Nothing here yet.")).toBeVisible();
-  await expect(select(page, "State")).toHaveValue("empty");
+  await expect(radio(page, "State", "Empty")).toHaveAttribute("aria-checked", "true");
 });
 
 test("a screen change from the proto pushes its own URL, and Back walks the flow", async ({ page }) => {
@@ -46,20 +48,20 @@ test("steps: the panel and the proto push one URL per step, a structural axis sw
   await page.goto("/lab/p/flow");
   await expect(page.getByRole("heading", { name: "Invoices" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Invoice #1042/ })).toBeVisible(); // 12 invoices by default, as a table
-  await select(page, "List layout").selectOption("cards");
+  await radio(page, "List layout", "Cards").click();
   await expect(page).toHaveURL(/a\.layout=cards/);
   await expect(page.locator("ul.grid")).toBeVisible();
-  await select(page, "Volume").selectOption("0");
+  await radio(page, "Volume", "0 invoices").click();
   await expect(page).toHaveURL(/s\.volume=0/);
   await expect(page.getByText("No invoice yet.")).toBeVisible();
-  await select(page, "Screen").selectOption("checkout");
+  await radio(page, "Screen", "Checkout").click();
   await expect(page).toHaveURL(/screen=checkout/);
   await expect(page).not.toHaveURL(/step=/);
   await expect(page.getByRole("heading", { name: "Address" })).toBeVisible();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/step=2/);
   await expect(page.getByRole("heading", { name: "Payment" })).toBeVisible();
-  await expect(select(page, "Step")).toHaveValue("2");
+  await expect(radio(page, "Step", "2. Payment")).toHaveAttribute("aria-checked", "true");
   await page.goBack();
   await expect(page.getByRole("heading", { name: "Address" })).toBeVisible();
   await page.goto("/lab/p/flow?screen=checkout&step=7");
@@ -68,8 +70,7 @@ test("steps: the panel and the proto push one URL per step, a structural axis sw
 
 test("viewport: a preset writes the size in the URL and frames the clean page at that size; a gesture inside reports to the lab URL", async ({ page }) => {
   await page.goto("/lab/p/flow");
-  await page.getByRole("tab", { name: "Viewport" }).click();
-  await page.getByRole("button", { name: /^Phone/ }).click();
+  await viewport(page).selectOption("390x844");
   await expect(page).toHaveURL(/v=390x844/);
   const frame = page.locator("iframe[data-lab-frame]");
   await expect(frame).toHaveCount(1);
@@ -90,7 +91,7 @@ test("viewport: a preset writes the size in the URL and frames the clean page at
   // The lab URL now lists the params in another order than the frame's: the frame is not reloaded.
   expect(await inner.locator("body").evaluate(() => (window as unknown as { mark?: number }).mark)).toBe(1);
   // Free size removes the param and renders the proto in the page again.
-  await page.getByRole("button", { name: "Free size" }).click();
+  await viewport(page).selectOption("free");
   await expect(page).not.toHaveURL(/v=/);
   await expect(frame).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Invoice #1042" })).toBeVisible();
@@ -104,24 +105,37 @@ test("viewport: a frame wider than the render zone keeps its exact size, its lef
   expect(box!.x).toBeGreaterThanOrEqual(0);
 });
 
-test("panel: a label names its select alone; the tabs move with the arrow keys", async ({ page }) => {
+test("panel: up to four values are one-click buttons, the arrows switch them; the tabs move with the arrows", async ({ page }) => {
   await page.goto("/lab/p/flow");
-  await page.locator("[data-lab-ui] label", { hasText: "Density" }).click();
-  await expect(select(page, "Density")).toBeFocused();
-  await expect(page.getByRole("tab", { name: "Variants" })).toHaveAttribute("aria-selected", "true");
+  await radio(page, "Density", "Comfortable").focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page).toHaveURL(/a\.density=compact/);
+  await expect(radio(page, "Density", "Compact")).toBeFocused();
   await page.getByRole("tab", { name: "Variants" }).focus();
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByRole("tab", { name: "Viewport" })).toBeFocused();
-  await expect(page.getByRole("tab", { name: "Viewport" })).toHaveAttribute("aria-selected", "true");
-  await page.keyboard.press("End");
+  await expect(page.getByRole("tab", { name: "Explore" })).toBeFocused();
   await expect(page.getByRole("tab", { name: "Explore" })).toHaveAttribute("aria-selected", "true");
+});
+
+test("panel: in free size the open panel pushes the page instead of covering it", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/lab/p/flow");
+  const pad = () => page.evaluate(() => getComputedStyle(document.documentElement).paddingRight);
+  await expect.poll(pad).toBe("320px");
+  const heading = await page.getByRole("heading", { name: "Invoices" }).boundingBox();
+  const aside = await panel(page).boundingBox();
+  expect(heading!.x + heading!.width).toBeLessThanOrEqual(aside!.x);
+  await page.getByRole("button", { name: "Collapse the lab panel" }).click();
+  await expect.poll(pad).toBe("0px");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: /^Lab · / }).click();
+  await expect(panel(page)).toBeVisible();
+  expect(await pad()).toBe("0px"); // a phone: the panel covers the page, as before
 });
 
 test("compare: a grid with one clean-page cell per value, the current one marked; Open leaves with that value", async ({ page }) => {
   await page.goto("/lab/p/flow?a.layout=cards");
-  await page.getByRole("tab", { name: "Compare" }).click();
-  await select(page, "Axis").selectOption("density");
-  await page.getByRole("button", { name: "Compare", exact: true }).click();
+  await panel(page).getByRole("button", { name: "Compare Density" }).click();
   await expect(page).toHaveURL(/compare=density/);
   const cells = page.locator("[data-lab-cell]");
   await expect(cells).toHaveCount(2);
@@ -131,9 +145,9 @@ test("compare: a grid with one clean-page cell per value, the current one marked
   await expect(page.locator("[data-lab-cell='compact'] iframe")).toHaveAttribute("src", /a\.density=compact/);
   await expect(page.locator("[data-lab-cell='compact'] iframe")).toHaveAttribute("src", /a\.layout=cards/);
   await expect(page.locator("[data-lab-cell='compact'] iframe")).toHaveAttribute("src", /lab=0/);
-  await expect(page.getByRole("tab", { name: "Compare" })).toHaveAttribute("aria-selected", "true");
-  await page.getByRole("tab", { name: "Variants" }).click();
-  await expect(select(page, "Density")).toBeDisabled();
+  await expect(panel(page).getByRole("button", { name: "Compare Density" })).toHaveAttribute("aria-pressed", "true");
+  await expect(radio(page, "Density", "Comfortable")).toBeDisabled();
+  await expect(radio(page, "Density", "Comfortable")).toHaveAttribute("aria-checked", "false"); // all values are on screen, none is "the" value
   await page.locator("[data-lab-cell='compact']").getByRole("button", { name: "Open" }).click();
   await expect(page).toHaveURL(/a\.density=compact/);
   await expect(page).not.toHaveURL(/compare=/);
@@ -190,18 +204,6 @@ test("explore: an example fills the field, and the prompt carries the proto, the
   expect(prompt).toContain("/lab/p/flow?compare=<axis key>&v=1280x800");
 });
 
-test("explore: the + next to an axis opens Explore with the axis named, ready to complete", async ({ page }) => {
-  await page.goto("/lab/p/flow");
-  await page.getByRole("button", { name: "Add an option to Density" }).click();
-  await expect(page.getByRole("tab", { name: "Explore" })).toHaveAttribute("aria-selected", "true");
-  const field = page.locator("[data-lab-explore] textarea").first();
-  await expect(field).toHaveValue('Add an option to "Density": ');
-  await expect(field).toBeFocused();
-  await page.getByRole("tab", { name: "Variants" }).click();
-  await page.getByRole("button", { name: "+ Explore a variant" }).click();
-  await expect(field).toHaveValue("");
-});
-
 test("explore: pointing at an element names it, the click does not trigger it, a state change clears it", async ({ page }) => {
   await page.goto("/lab/p/flow");
   await page.getByRole("tab", { name: "Explore" }).click();
@@ -218,7 +220,7 @@ test("explore: pointing at an element names it, the click does not trigger it, a
   expect(prompt).toMatch(/Element: <button> "Invoice #1042/);
   expect(prompt).toContain("Request: make this row a card");
   await page.getByRole("tab", { name: "Variants" }).click();
-  await select(page, "Density").selectOption("compact");
+  await radio(page, "Density", "Compact").click();
   await page.getByRole("tab", { name: "Explore" }).click();
   await expect(page.getByText("Designation cleared: the state changed")).toBeVisible();
   await expect(named).toHaveCount(0);
