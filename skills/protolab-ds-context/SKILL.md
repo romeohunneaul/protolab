@@ -39,6 +39,10 @@ description: Gathers the design system a proto may use - the host's coded compon
 Consult it when an intention has no coded equivalent yet, to decide whether to compose with what
 exists or to report a gap.
 
+A `DESIGN.md` at the root (written by `impeccable document`) describes the visual language: the
+tokens' roles, the type scale, the character of the components. Read it when it exists; the
+components a proto uses stay those of `componentsDir`.
+
 ## 4. Hand over
 
 A short list: the components relevant to the task with their real props and states, how to

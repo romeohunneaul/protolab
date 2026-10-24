@@ -83,39 +83,34 @@ test("protolab-new refuses a slug that is not kebab-case, a duplicate, and a mis
 test("protolab-skills copies the agent skills into .claude/skills/", () => {
   const first = run("protolab-skills");
   assert.equal(first.status, 0, first.out);
-  for (const s of ["protolab-create", "protolab-variant", "protolab-diverge", "protolab-scenarios", "protolab-ds-context", "protolab-review", "animate", "review-animations"]) {
+  for (const s of ["protolab-create", "protolab-variant", "protolab-diverge", "protolab-scenarios", "protolab-ds-context", "protolab-review", "impeccable"]) {
     assert.ok(existsSync(join(host, ".claude/skills", s, "SKILL.md")), `${s} should be installed`);
     assert.match(first.out, new RegExp(`✓ installed \\.claude/skills/${s}`));
   }
+  for (const a of ["impeccable-asset-producer", "impeccable-documenter", "impeccable-finish-reviewer"]) {
+    assert.ok(existsSync(join(host, ".claude/agents", `${a}.md`)), `${a} should be installed`);
+  }
+  // A file left from an older copy goes away: the folder is replaced whole.
+  writeFileSync(join(host, ".claude/skills/impeccable/reference/live.md"), "stale\n");
   const second = run("protolab-skills");
   assert.match(second.out, /↻ updated \.claude\/skills\/protolab-create/);
+  assert.ok(!existsSync(join(host, ".claude/skills/impeccable/reference/live.md")));
 });
 
-test("protolab-skills reports impeccable: missing, the plugin, a project copy, both", () => {
+test("protolab-skills warns when the impeccable plugin is enabled next to its copy", () => {
   // A fake `claude` on the PATH answers `claude plugin list --json`.
   const fakeBin = mkdtempSync(join(tmpdir(), "protolab-claude-"));
   const skills = (plugins) => {
     writeFileSync(join(fakeBin, "claude"), `#!/bin/sh\necho '${JSON.stringify(plugins)}'\n`, { mode: 0o755 });
     return execFileSync(process.execPath, [bin("protolab-skills")], { cwd: host, encoding: "utf8", env: { ...process.env, PATH: fakeBin } });
   };
-  const copy = join(host, ".claude/skills/impeccable");
   try {
-    const missing = skills([]);
-    assert.match(missing, /! impeccable not found: /);
-    assert.match(missing, /claude plugin install impeccable@impeccable/);
-    assert.match(missing, /npx impeccable install --providers=claude --scope=project/);
-    assert.match(skills([{ id: "impeccable@impeccable", enabled: false }]), /! impeccable plugin impeccable@impeccable is disabled/);
-    assert.match(skills([{ id: "impeccable@impeccable", enabled: true }]), /✓ impeccable: plugin impeccable@impeccable/);
-    mkdirSync(copy, { recursive: true });
-    writeFileSync(join(copy, "SKILL.md"), "---\nname: impeccable\n---\n");
-    assert.match(skills([]), /✓ impeccable: copy in \.claude\/skills\/impeccable/);
-    assert.match(skills([{ id: "impeccable@impeccable", enabled: true }]), /! impeccable is both .* keep one/);
-    rmSync(fakeBin, { recursive: true, force: true });
-    rmSync(copy, { recursive: true, force: true });
-    assert.match(execFileSync(process.execPath, [bin("protolab-skills")], { cwd: host, encoding: "utf8", env: { ...process.env, PATH: "" } }), /claude CLI unavailable, plugin not checked/);
+    assert.match(skills([{ id: "impeccable@impeccable", enabled: true }]), /! the impeccable plugin is enabled too: disable it \(claude plugin disable impeccable@impeccable\)/);
+    assert.doesNotMatch(skills([{ id: "impeccable@impeccable", enabled: false }]), /impeccable plugin/);
+    assert.doesNotMatch(skills([]), /impeccable plugin/);
+    assert.doesNotMatch(execFileSync(process.execPath, [bin("protolab-skills")], { cwd: host, encoding: "utf8", env: { ...process.env, PATH: "" } }), /impeccable plugin/);
   } finally {
     rmSync(fakeBin, { recursive: true, force: true });
-    rmSync(copy, { recursive: true, force: true });
   }
 });
 

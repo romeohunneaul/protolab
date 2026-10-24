@@ -1,3 +1,23 @@
+# Third-Party Notices
+
+This project includes content derived from third-party work, used under the terms of its original license.
+
+## Platform Design Skills
+
+The `skill/reference/ios.md` and `skill/reference/android.md` platform reference files are distilled from ehmo's `platform-design-skills` (Apple Human Interface Guidelines and Material Design 3 rules), rewritten in Impeccable's voice.
+
+**Original work:** https://github.com/ehmo/platform-design-skills
+**Original license:** MIT
+**Author:** ehmo
+
+## Emil Kowalski's skills
+
+`reference/animate-build.md`, `reference/animate-recipes.md`, `reference/review-motion.md` and `reference/motion-standards.md` come from `animate` and `review-animations` in emilkowalski/skills, adapted (see `CHANGES.md`).
+
+**Original work:** https://github.com/emilkowalski/skills
+**Original license:** MIT
+
+```
 MIT License
 
 Copyright (c) 2026 Emil Kowalski
@@ -19,3 +39,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```

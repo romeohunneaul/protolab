@@ -9,15 +9,22 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
-- Design skills (ADR 0008). `animate` and `review-animations`, from `emilkowalski/skills`, ship
-  with the others. `protolab-skills` reports impeccable (the plugin, a copy in the project, both,
-  or neither with the two install commands); it installs nothing. `rules/proto.md` routes each
-  design request to one skill and keeps their edits within the design system.
+- The design pass (ADR 0008): `impeccable`, an adjusted copy of pbakaus/impeccable with Emil
+  Kowalski's motion skills (`/impeccable animate`, `/impeccable review-motion`), ships with the
+  protolab skills; its subagents go into `.claude/agents/`. `protolab-skills` warns when the
+  impeccable plugin is enabled too. `rules/proto.md` routes each design request to one skill.
 - `protolab-scenarios`: a `worst-case` value, built from a catalog of values that break UI
-  (`worst-case.md`, from `break-ui`). Existing hosts: `npm run update:protolab`.
+  (`worst-case.md`, from `break-ui`).
+- `UPSTREAM.json` and `npm run upstream`: the copied files, their pinned commits, and a three-way
+  merge of newer upstream commits that keeps the local changes.
+
+Existing hosts: `npm run update:protolab`. If impeccable was installed as a plugin, disable it; a
+copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 
 ### Changed
 
+- `protolab-skills` replaces each skill folder whole, so a file removed from the package goes
+  away in the host.
 - Hosts follow `main`: no release tags to pin. `update:protolab`, written by `protolab-init`,
   also runs `protolab-check`. Existing hosts can add `&& protolab-check` to their script.
 
