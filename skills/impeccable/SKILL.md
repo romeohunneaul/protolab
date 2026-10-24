@@ -73,7 +73,7 @@ Routing:
 - **Workflow or command-selection question:** read [Workflow questions](reference/routing.md#workflow-questions).
 - **Otherwise:** treat the request as general design work. Missing PRODUCT.md routes a new surface or replacement world through init, then new-work; a narrow refinement of existing code proceeds on the incumbent implementation as `impeccable context` directs, offering init afterward rather than blocking on it.
 - `teach` aliases `init`. A request to frame a feature before any design goes to the product brief, not to a command here.
-- In a project with a lab (`protolab.config.json`), the variants, competing approaches and data scenarios of a proto are protolab's (`protolab-variant`, `protolab-diverge`, `protolab-scenarios`); a design edit on a proto follows `.claude/rules/proto.md`, read before the edit.
+- In a project with a lab (`protolab.config.json`), the variants, competing approaches and data scenarios of a proto are protolab's (`/protolab variant`, `/protolab diverge`, `/protolab scenarios`); a design edit on a proto follows `.claude/rules/proto.md`, read before the edit.
 
 After init writes PRODUCT.md, resume without rerunning `impeccable context`; init loads the native platform reference itself when the platform it recorded is `ios`, `android`, or `adaptive`.
 

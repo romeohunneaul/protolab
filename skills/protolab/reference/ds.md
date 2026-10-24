@@ -1,9 +1,4 @@
----
-name: protolab-ds-context
-description: Gathers the design system a proto may use - the host's coded components (componentsDir of protolab.config.json, with their stories), the documentation declared in the ds block (a Storybook, a Claude Design project, or none) and the libraries allowed outside the design system. Use BEFORE writing or changing a proto, when the user says "quels composants j'ai", "récupère le storybook", "prototype avec le DS", and whenever protolab-create, protolab-variant or protolab-diverge must pick a component. Never invent a component or a prop - what this skill does not find does not exist.
----
-
-# protolab: design system context
+# Design system context
 
 > You know a component only after reading its file in the host's components folder. Training
 > data is never a source: if you have not read the file, you do not know.
@@ -53,7 +48,7 @@ panel). A gap is a product signal, not an invitation to write custom CSS:
 - or use a library listed in `ds.offDs`, and mark the proto `offDs: true` in the manifest;
 - otherwise ask (`AskUserQuestion`) whether a fallback is acceptable.
 
-## What this skill does not do
+## What this command does not do
 
-It writes no code. It prepares `protolab-create`, `protolab-variant` and `protolab-diverge`.
+It writes no code. It prepares `/protolab create`, `/protolab variant` and `/protolab diverge`.
 Custom CSS is a last resort, never without the user's explicit go.

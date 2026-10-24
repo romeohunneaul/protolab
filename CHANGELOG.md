@@ -17,16 +17,26 @@ All notable changes to this project are documented here. The format follows
   (`worst-case.md`, from `break-ui`).
 - `UPSTREAM.json` and `npm run upstream`: the copied files, their pinned commits, and a three-way
   merge of newer upstream commits that keeps the local changes.
+- `/protolab update` (ADR 0009): asked "update protolab", Claude Code runs `update:protolab`, says
+  what changed since the pinned commit from the changelog, proposes the migrations and the commit.
+  The package ships `CHANGELOG.md` for it.
 
 Existing hosts: `npm run update:protolab`. If impeccable was installed as a plugin, disable it; a
 copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 
 ### Changed
 
+- The six protolab skills become one, `protolab`, with commands like `impeccable` (ADR 0009):
+  `/protolab create`, `variant`, `diverge`, `scenarios`, `ds` (was `protolab-ds-context`),
+  `review`, `update`. `protolab-skills` removes the old `.claude/skills/protolab-*` folders.
 - `protolab-skills` replaces each skill folder whole, so a file removed from the package goes
   away in the host.
 - Hosts follow `main`: no release tags to pin. `update:protolab`, written by `protolab-init`,
   also runs `protolab-check`. Existing hosts can add `&& protolab-check` to their script.
+
+Existing hosts: `npm run update:protolab`, then commit the removed `.claude/skills/protolab-*`
+folders with the new `.claude/skills/protolab`. A prompt or a doc of the host that names an old
+skill says `/protolab <command>` instead.
 
 ## [0.3.0] - 2026-10-21
 

@@ -1,19 +1,8 @@
----
-name: protolab-create
-description: Creates a prototype in the host's lab - its folder and its manifest entry through protolab-new - built with the project's real components, from the user's intent, the feature's brief and jobs when they exist, and optionally references from Mobbin; offers several approaches straight away when the intent is open. Use when the user says "nouveau proto", "prototype la feature X", "crée un proto pour…", "new proto", or wants to try a screen or an interaction idea. Produces a React component faithful to the design system, never a static HTML mock-up.
----
-
-# protolab: create a prototype
+# Create a prototype
 
 Goal: from a feature intent to a screen running at `<basePath>/p/<slug>`, built with **the
 project's components**. The metric is the time between "I have an idea" and "I see it on
 screen", not the ceremony.
-
-> Every rule is paid by the agent, not by the user. Never block on a gap you can fix alone.
-> On a product arbitrage, `AskUserQuestion` with proposed defaults.
-
-**Before writing:** read `.claude/rules/proto.md` (structure, naming, rules of a proto) and
-`protolab.config.json` (`protosDir`, `manifest`, `componentsDir`, `basePath`, `ds`).
 
 ## 1. Gather the context, in this order
 
@@ -27,7 +16,7 @@ screen", not the ceremony.
 
 A source that is not reachable from this repo (the live site lives elsewhere, there is no product
 repo, no brief) is skipped: say which ones, and continue. Do not search the disk for them.
-4. **The design system**: run `protolab-ds-context`.
+4. **The design system**: run `/protolab ds`.
 5. **References** (optional): if a Mobbin tool is available, look at two or three products that
    solve the same screen.
 
@@ -47,23 +36,23 @@ then prints `<basePath>/p/<slug>`. Never write the entry by hand: a manual inser
 
 Edit `<protosDir>/<slug>/index.tsx`:
 
-- import the real components the way `protolab-ds-context` said; never copy their style;
+- import the real components the way `/protolab ds` said; never copy their style;
 - labels in the host's language: the `lang` of its root layout, else the language of the
   existing protos;
 - content only the user knows (what they work on, their clients, their numbers): write plausible
   placeholders in `data.ts`, mark them as placeholders in a comment, and say so in your reply.
   Never present invented facts as real;
 - several views (list → detail, a flow in steps): declare `screens` and `steps` and move with
-  `useScreen` (`protolab-variant`, section 4);
+  `useScreen` (`/protolab variant`, section 4);
 - `"use client"` when the file reads a lab hook or has interactivity.
 
 Then, depending on the request:
 
 | The user wants | Next |
 |---|---|
-| Several approaches, or the intent is open ("explore", "propose") | `protolab-diverge` |
-| States: empty, loading, error, compact | `protolab-variant` |
-| Realistic data: volumes, roles, personas | `protolab-scenarios` |
+| Several approaches, or the intent is open ("explore", "propose") | `/protolab diverge` |
+| States: empty, loading, error, compact | `/protolab variant` |
+| Realistic data: volumes, roles, personas | `/protolab scenarios` |
 
 ## 4. Verify, then hand over
 
@@ -77,7 +66,7 @@ Then, depending on the request:
 
 - **Deliverable = a standalone React component** reusing the design system. A static `.html` is
   never valid.
-- **Never invent** a component, a prop or a class: check with `protolab-ds-context`.
+- **Never invent** a component, a prop or a class: check with `/protolab ds`.
 - **Custom CSS = last resort**, with the project's classes or tokens only, after validation.
 - The proto is **throwaway and outside production** (the lab is `noindex`): no tests, no
   exhaustive accessibility required unless the user asks.

@@ -1,18 +1,8 @@
----
-name: protolab-variant
-description: Adds a variant to an existing proto of the lab - an axis of states (empty, loading, error, compact, a wording) or a structural axis (two or more versions of a block or a layout, e.g. filters above the tabs vs in a side panel), or screens and steps. Use when the user says "ajoute un état", "fais une variante", "montre aussi le cas vide", "teste X vs Y", "deux versions de ce bloc", "add a state", "make a variant". For several competing approaches of a whole screen, use protolab-diverge; for data volumes, roles or personas whose data differ, use protolab-scenarios.
----
-
-# protolab: add a variant
+# Add a variant
 
 A proto varies along **axes**: any combination of values is valid, switchable from the lab panel
 and kept in the URL (`?a.<key>=<id>`), so a link restores the exact combination. Never duplicate
 a proto to show a variant.
-
-**Before writing:** read `.claude/rules/proto.md` (what a proto respects), `protolab.config.json`
-(paths: `manifest`, `protosDir`, `componentsDir`) and the proto itself: its manifest entry and
-`<protosDir>/<slug>/`. If the variant needs a component you have not used yet, run
-`protolab-ds-context` first.
 
 ## 1. Pick the kind of variation
 
@@ -20,7 +10,7 @@ a proto to show a variant.
 |---|---|---|
 | A mode of the same screen: empty, loading, error, compact, another wording | a **state axis** (`kind` absent) | reads `useAxis("<key>")` and branches its render |
 | Two or more versions of a block or of the layout, each worth its own file: filters above the tabs vs in a side panel, a table vs cards, two heroes | a **structural axis** (`kind: "structural"`), one component per value | places `<AxisSlot axis="<key>" />` where the block goes; the engine renders the current value's component |
-| The data the screen shows: 0, 12 or 500 items, a role, a persona whose data differ | a **scenario**: use `protolab-scenarios` | |
+| The data the screen shows: 0, 12 or 500 items, a role, a persona whose data differ | a **scenario**: use `/protolab scenarios` | |
 | A view the proto moves to: list → detail, step 1 → 2 | **screens** and **steps** (section 4) | |
 
 Rule of thumb: if `value === "x" ? <A /> : <B />` would wrap more than half of the component, or

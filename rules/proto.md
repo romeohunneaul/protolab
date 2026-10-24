@@ -75,14 +75,14 @@ order); `load` imports `./protos/<slug>`.
 
 ## Design skills on a proto
 
-`impeccable` is the design pass on a proto (`/impeccable <command>`); the protolab skills own its
-structure and its data. Each request has one skill:
+`impeccable` is the design pass on a proto (`/impeccable <command>`); `protolab` owns its
+structure and its data (`/protolab <command>`). Each request has one command:
 
-| Request | Skill |
+| Request | Command |
 |---|---|
-| A state, a version of a block, N approaches of a screen | `protolab-variant`, `protolab-diverge` |
-| Data: volumes, roles, worst-case content | `protolab-scenarios` |
-| The components a proto may use | `protolab-ds-context` |
+| A state, a version of a block, N approaches of a screen | `/protolab variant`, `/protolab diverge` |
+| Data: volumes, roles, worst-case content | `/protolab scenarios` |
+| The components a proto may use | `/protolab ds` |
 | The product context and the visual language, once per project | `impeccable init` (`PRODUCT.md`, from the brief), `impeccable document` (`DESIGN.md`) |
 | A critique, an audit, a polish; too busy, too bland; spacing, type, colour, wording, edge cases, sizes | `impeccable critique`, `audit`, `polish`, `distill`, `quieter`, `bolder`, `layout`, `typeset`, `colorize`, `clarify`, `harden`, `adapt` |
 | Build a motion, review one | `impeccable animate`, `impeccable review-motion` |
@@ -101,6 +101,6 @@ structure and its data. Each request has one skill:
 
 ## See also
 
-- `.claude/skills/protolab-create`, `protolab-variant`, `protolab-diverge`, `protolab-scenarios`,
-  `protolab-ds-context`, `protolab-review`, `impeccable`.
+- `.claude/skills/protolab` (`create`, `variant`, `diverge`, `scenarios`, `ds`, `review`, `update`)
+  and `.claude/skills/impeccable`.
 - The README of `@romeohunneaul/protolab`: the manifest, the hooks, the panel.

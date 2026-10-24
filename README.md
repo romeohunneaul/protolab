@@ -6,18 +6,23 @@ The metric is the time between "I have an idea" and "I see it on screen".
 A prototype is a React component in your project, registered in one hand-editable manifest,
 served at `/lab/p/<slug>`, with **axes** (states, or competing versions of a block), **screens**
 and their **steps**, and **scenarios** (data sets), all switchable from a floating panel and
-encoded in the URL so a link restores the exact combination. Seven agent skills ship with the
-package, so Claude Code writes the protos for you:
+encoded in the URL so a link restores the exact combination. Two agent skills ship with the
+package, so Claude Code writes the protos for you: `protolab` for the structure and the data of a
+proto, `impeccable` for its design. Each is a set of commands:
 
-| Skill | Ask it to |
+| Command | Ask it to |
 |---|---|
-| `protolab-create` | create a proto from an intent, a brief, the jobs, your design system |
-| `protolab-variant` | add states, a competing version of a block (a structural axis), screens and steps |
-| `protolab-diverge` | build N approaches of a screen or a block to compare side by side, then keep one |
-| `protolab-scenarios` | add data sets: volumes, roles, personas, the worst case |
-| `protolab-ds-context` | read your design system (code, Storybook, Claude Design) before touching anything |
-| `protolab-review` | turn the Vercel Comments on your previews into changes |
-| `impeccable` | the design pass: `/impeccable critique`, `audit`, `polish`, `layout`, `typeset`, `clarify`, `animate`, `review-motion`… |
+| `/protolab create` | create a proto from an intent, a brief, the jobs, your design system |
+| `/protolab variant` | add states, a competing version of a block (a structural axis), screens and steps |
+| `/protolab diverge` | build N approaches of a screen or a block to compare side by side, then keep one |
+| `/protolab scenarios` | add data sets: volumes, roles, personas, the worst case |
+| `/protolab ds` | read your design system (code, Storybook, Claude Design) before touching anything |
+| `/protolab review` | turn the Vercel Comments on your previews into changes |
+| `/protolab update` | update the package and its skills, tell you what changed, apply the migrations |
+| `/impeccable <command>` | the design pass: `critique`, `audit`, `polish`, `layout`, `typeset`, `clarify`, `animate`, `review-motion`… |
+
+You do not need to type a command: a sentence ("propose 3 approaches of this hero", "test with 500
+rows", "update protolab") goes to the right one.
 
 `impeccable` is an adjusted copy of [pbakaus/impeccable](https://github.com/pbakaus/impeccable),
 with motion from [emilkowalski/skills](https://github.com/emilkowalski/skills): the commands that
@@ -30,11 +35,15 @@ are styled with Tailwind classes).
 
 ## Install
 
+Four steps, from the root of a Next App Router project.
+
+### 1. Add the package
+
 ```bash
 npm i -D github:romeohunneaul/protolab
 ```
 
-Then, from the project root:
+### 2. Wire the lab
 
 ```bash
 npx protolab-init
@@ -133,6 +142,25 @@ that returns `null` in production. The package stays free of that dependency.
 
 </details>
 
+### 3. Install the skills
+
+```bash
+npx protolab-skills
+```
+
+It copies `protolab` and `impeccable` into `.claude/skills/`, impeccable's subagents into
+`.claude/agents/`, and the proto rule into `.claude/rules/proto.md` (loaded when a file under
+`protosDir` is edited). They are copies: `/protolab update` refreshes them. If the impeccable
+plugin is enabled in Claude Code, `protolab-skills` tells you to disable it, so each command exists
+once.
+
+### 4. Commit, then ask for a proto
+
+Commit `package.json`, `package-lock.json`, `protolab.config.json`, the manifest, the pages and
+`.claude/`. Then, in Claude Code opened on the project: "new proto for the reading list", or
+`/protolab create`. Once per project, `/impeccable init` writes `PRODUCT.md` from your brief and
+`/impeccable document` writes `DESIGN.md` from your code; the design commands read both.
+
 ## Use
 
 ```bash
@@ -214,6 +242,10 @@ Read and close comments from the terminal: `vercel comments --json`,
 
 ## Staying up to date
 
+Ask Claude Code "update protolab" (or `/protolab update`). It notes the commit you are on, runs
+`npm run update:protolab`, tells you what changed from the changelog, proposes the migrations it
+asks for, and proposes the commit. The rest of this section is what it does.
+
 Protolab is installed from GitHub, so npm pins the exact commit in your `package-lock.json`.
 `git pull` in your project does not move it, and neither does `npm update`. To follow the engine:
 
@@ -249,7 +281,7 @@ authors do not follow its development.
 
 ## Copied skills
 
-`skills/impeccable`, `agents/` and `skills/protolab-scenarios/worst-case.md` are copies of other
+`skills/impeccable`, `agents/` and `skills/protolab/reference/worst-case.md` are copies of other
 repos, pinned in `UPSTREAM.json` and adjusted here. To follow them:
 
 ```bash
@@ -268,7 +300,7 @@ a PR. Hosts get it with `npm run update:protolab`.
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
 | `bin/` | `protolab-init`, `protolab-new`, `protolab-check`, `protolab-skills` |
 | `test/` | `bin.test.mjs` (node:test) and `smoke.spec.ts` (Playwright) |
-| `skills/` | the agent skills, copied into consumers by `protolab-skills`; `skills/impeccable` is a pinned copy (below) |
+| `skills/` | the agent skills, copied into consumers by `protolab-skills`: `protolab` (its commands in `reference/`) and `impeccable`, a pinned copy (below) |
 | `agents/` | impeccable's subagents, copied into consumers' `.claude/agents/` |
 | `UPSTREAM.json`, `scripts/upstream.mjs` | the files copied from other repos and their pinned commits; `npm run upstream` |
 | `rules/` | `proto.md`, what a proto is and respects; installed into consumers' `.claude/rules/` by `protolab-skills`, with `paths` set from `protosDir` |
@@ -299,5 +331,5 @@ the Chromium that Playwright finds on the machine (`npx playwright install chrom
 MIT, except the copied files listed in `UPSTREAM.json`: `skills/impeccable/` and `agents/` come
 from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0, `LICENSE` and
 `NOTICE.md` in that folder, changes in `CHANGES.md`); its motion references and
-`skills/protolab-scenarios/worst-case.md` come from
+`skills/protolab/reference/worst-case.md` come from
 [emilkowalski/skills](https://github.com/emilkowalski/skills) (MIT), with their notice.

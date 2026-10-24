@@ -1,12 +1,7 @@
----
-name: protolab-review
-description: Turns the Vercel Comments left on the host's preview deployments into changes on the protos - lists the open threads, maps each one to its proto and its state, proposes a change per thread, applies the accepted ones, and resolves the threads once the user agrees. Use when the user says "traite les retours", "regarde les commentaires Vercel", "passe les retours à Claude", "review the comments". Needs the Vercel CLI, logged in, and the host linked to its Vercel project.
----
-
-# protolab: review the comments
+# Review the comments
 
 Comments on a proto are Vercel Comments, pinned on an element of a preview deployment; the
-engine has no comment layer. This skill reads them from the terminal and turns them into
+engine has no comment layer. This command reads them from the terminal and turns them into
 changes.
 
 **Prerequisites:** the Vercel CLI (`vercel --version`), logged in (`vercel whoami`), the host
@@ -34,8 +29,8 @@ text, the author, the date. For context on a thread: `vercel comments inspect <t
 ## 3. Propose, then apply
 
 Group the threads by proto. For each thread, one line: the proto, the state, what the comment
-asks, the change you propose (and through which skill: `protolab-variant`,
-`protolab-diverge`, `protolab-scenarios`, or a plain edit). Present the list and let the user
+asks, the change you propose (and through which command: `/protolab variant`,
+`/protolab diverge`, `/protolab scenarios`, or a plain edit). Present the list and let the user
 accept, change or drop each line. Apply the accepted changes, then `npx protolab-check` and the
 typecheck.
 
