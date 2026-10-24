@@ -26,6 +26,10 @@ copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 
 ### Changed
 
+- `/protolab diverge` takes what fits the lab from `prototype` in mattpocock/skills (MIT): one
+  question before the approaches, the approaches judged inside their real page, a self-check that
+  two approaches do not share layout and primary action, a mixed verdict built as a new value,
+  the divergence committed before converging, the verdict written down.
 - The six protolab skills become one, `protolab`, with commands like `impeccable` (ADR 0009):
   `/protolab create`, `variant`, `diverge`, `scenarios`, `ds` (was `protolab-ds-context`),
   `review`, `update`. `protolab-skills` removes the old `.claude/skills/protolab-*` folders.

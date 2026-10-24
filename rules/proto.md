@@ -97,7 +97,7 @@ structure and its data (`/protolab <command>`). Each request has one command:
   library picked for the proto.
 - The proto is throwaway: `audit` and `harden` run when the user asks, not by default.
 - Another design skill installed next to these (a plugin's critique, a `prototype` skill) is not
-  used on a proto.
+  used on a proto: `/protolab diverge` is how a proto explores what a screen should look like.
 
 ## See also
 
