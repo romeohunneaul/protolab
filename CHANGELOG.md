@@ -1,10 +1,18 @@
 # Changelog
 
 All notable changes to this project are documented here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer. Hosts pin a
-tag: `npm i -D github:romeohunneaul/protolab#v0.2.0`.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Hosts follow `main`
+(`npm run update:protolab`); a change that asks a host to adapt its code says how, under
+`Unreleased`. Tags `v0.1.0` to `v0.3.0` stay as history.
 
 ## [Unreleased]
+
+### Changed
+
+- Hosts follow `main`: no release tags to pin. `update:protolab`, written by `protolab-init`,
+  also runs `protolab-check`. Existing hosts can add `&& protolab-check` to their script.
+
+## [0.3.0] - 2026-10-21
 
 ### Changed
 

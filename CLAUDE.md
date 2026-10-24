@@ -45,7 +45,7 @@ npm run check            # the four above, in order
   when the manifest, the CLIs or the exported API change.
 - No personal path, no client data, no secret in the diff.
 - `CHANGELOG.md` has a line under `Unreleased`.
-- One branch per slice, a PR to `main`, merge after review. A tag `vX.Y.Z` per lot.
+- One branch per slice, a PR to `main`, merge after review.
 
 ## Scope and debugging discipline
 
@@ -58,9 +58,10 @@ npm run check            # the four above, in order
 
 ## Versioning
 
-`version` in `package.json` follows SemVer; every lot ends with a tag `vX.Y.Z` and a section in
-`CHANGELOG.md` (Keep a Changelog). Hosts pin a tag
-(`npm i -D github:romeohunneaul/protolab#v0.2.0`), never `main`.
+Hosts follow `main` (`npm run update:protolab`); no release tags while the only host's author is
+the package's author. Every PR adds its line under `Unreleased` in `CHANGELOG.md`, with the
+migration steps when a host must change its code; say so in the PR. Tags `vX.Y.Z` and SemVer come
+back when someone else installs the package (tags `v0.1.0` to `v0.3.0` stay as history).
 
 ## Where to read
 
