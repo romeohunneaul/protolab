@@ -6,7 +6,7 @@ The metric is the time between "I have an idea" and "I see it on screen".
 A prototype is a React component in your project, registered in one hand-editable manifest,
 served at `/lab/p/<slug>`, with **axes** (states, or competing versions of a block), **screens**
 and their **steps**, and **scenarios** (data sets), all switchable from a floating panel and
-encoded in the URL so a link restores the exact combination. Six agent skills ship with the
+encoded in the URL so a link restores the exact combination. Eight agent skills ship with the
 package, so Claude Code writes the protos for you:
 
 | Skill | Ask it to |
@@ -14,9 +14,16 @@ package, so Claude Code writes the protos for you:
 | `protolab-create` | create a proto from an intent, a brief, the jobs, your design system |
 | `protolab-variant` | add states, a competing version of a block (a structural axis), screens and steps |
 | `protolab-diverge` | build N approaches of a screen or a block to compare side by side, then keep one |
-| `protolab-scenarios` | add data sets: volumes, roles, personas |
+| `protolab-scenarios` | add data sets: volumes, roles, personas, the worst case |
 | `protolab-ds-context` | read your design system (code, Storybook, Claude Design) before touching anything |
 | `protolab-review` | turn the Vercel Comments on your previews into changes |
+| `animate`, `review-animations` | build a motion, review one (from [emilkowalski/skills](https://github.com/emilkowalski/skills), MIT) |
+
+The design pass (critique, audit, polish, spacing, type, wording) is
+[impeccable](https://github.com/pbakaus/impeccable), installed beside the package, as its plugin or
+as a copy in your project; `protolab-skills` tells you which one it finds. `rules/proto.md`
+routes each design request to one skill and keeps impeccable's edits within your design system
+(ADR 0008).
 
 Works with Next.js App Router (15+), React 19 and Tailwind CSS v4 (the panel and the dashboard
 are styled with Tailwind classes).
@@ -132,7 +139,7 @@ that returns `null` in production. The package stays free of that dependency.
 npx protolab-init                                              # once: wire the lab
 npx protolab-new <slug> "<Name>" "<Author>" "<Description>"   # scaffold + register
 npx protolab-check                                             # validate the manifest against the contract
-npx protolab-skills                                            # skills into .claude/skills/, proto rules into .claude/rules/
+npx protolab-skills                                            # skills into .claude/skills/, proto rules into .claude/rules/, checks impeccable
 ```
 
 `protolab-check` evaluates the manifest (Node 22.6+ with type stripping) and lists every error at
@@ -273,4 +280,6 @@ the Chromium that Playwright finds on the machine (`npx playwright install chrom
 
 ## License
 
-MIT
+MIT. `skills/animate/`, `skills/review-animations/` and `skills/protolab-scenarios/worst-case.md`
+come from [emilkowalski/skills](https://github.com/emilkowalski/skills) (MIT, Copyright (c) 2026 Emil
+Kowalski), with their notice.

@@ -7,6 +7,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Design skills (ADR 0008). `animate` and `review-animations`, from `emilkowalski/skills`, ship
+  with the others. `protolab-skills` reports impeccable (the plugin, a copy in the project, both,
+  or neither with the two install commands); it installs nothing. `rules/proto.md` routes each
+  design request to one skill and keeps their edits within the design system.
+- `protolab-scenarios`: a `worst-case` value, built from a catalog of values that break UI
+  (`worst-case.md`, from `break-ui`). Existing hosts: `npm run update:protolab`.
+
 ### Changed
 
 - Hosts follow `main`: no release tags to pin. `update:protolab`, written by `protolab-init`,

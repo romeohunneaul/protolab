@@ -1,6 +1,6 @@
 ---
 name: protolab-scenarios
-description: Adds context scenarios to a proto of the lab - the data the screen renders with (a volume of 0, 12 or 500 items, a role that sees other rows, a persona whose numbers and names differ) - as data sets switchable from the panel and kept in the URL. Use when the user says "teste avec beaucoup de données", "et si la liste est vide", "avec 500 lignes", "vu par un admin", "ajoute des scénarios", "add realistic data". For a mode of the screen (empty, loading, error) forced by the component, or a wording that changes per persona, use protolab-variant.
+description: Adds context scenarios to a proto of the lab - the data the screen renders with (a volume of 0, 12 or 500 items, a role that sees other rows, a persona whose numbers and names differ, a worst case of long names, unbreakable emails and extreme numbers) - as data sets switchable from the panel and kept in the URL. Use when the user says "teste avec beaucoup de données", "et si la liste est vide", "avec 500 lignes", "vu par un admin", "ajoute des scénarios", "le pire cas", "casse l'UI", "add realistic data", "worst case". For a mode of the screen (empty, loading, error) forced by the component, or a wording that changes per persona, use protolab-variant.
 ---
 
 # protolab: context scenarios
@@ -49,6 +49,23 @@ export const books = (count: number): Book[] =>
   their data are always fictional.
 - **The edges that matter**: an empty set, a typical set, a set big enough to stress the layout
   (long lists, long names, large numbers).
+
+### A worst-case value
+
+When the user wants to stress the screen ("le pire cas", "casse l'UI", "noms très longs",
+"worst case"), add a `worst-case` value to the scenario that carries the proto's main data,
+built from [worst-case.md](worst-case.md):
+
+- One data set, many failures: take every catalog row that applies to the fields the proto
+  renders, and spread them across the first items (item 1 the long name, item 2 the unbreakable
+  email, item 3 the one-letter name), as real data does.
+- Plausible or bounded by the real limit (a column size, a validation rule), never random;
+  emails and URLs on `example.com` or `.test`. Still deterministic.
+- The data changes, the component does not: no markup or CSS edited to produce a break.
+- Then look at it (`?s.<key>=worst-case`, and `&v=390x844`), and report each break with its
+  signature, cause and fix from the catalog; a break that is a design decision (truncate or wrap,
+  hide a missing field or show "—") goes to the user. Fix only what they accept, in the proto's
+  own pieces; a break inside a design-system component is reported, not patched.
 
 ## 3. Declare and read
 
