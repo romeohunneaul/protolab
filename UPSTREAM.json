@@ -1,0 +1,19 @@
+{
+  "sources": {
+    "impeccable": { "repo": "pbakaus/impeccable", "commit": "936867543ac2576920d663cc9803597f6044f3ac" },
+    "emil": { "repo": "emilkowalski/skills", "commit": "2d228630ba1446365f614a108cb8252f1feda202" }
+  },
+  "copies": [
+    { "source": "impeccable", "from": "plugin/skills/impeccable", "to": "skills/impeccable" },
+    { "source": "impeccable", "from": "LICENSE", "to": "skills/impeccable/LICENSE" },
+    { "source": "impeccable", "from": "NOTICE.md", "to": "skills/impeccable/NOTICE.md" },
+    { "source": "impeccable", "from": "plugin/agents/impeccable-asset-producer.md", "to": "agents/impeccable-asset-producer.md" },
+    { "source": "impeccable", "from": "plugin/agents/impeccable-documenter.md", "to": "agents/impeccable-documenter.md" },
+    { "source": "impeccable", "from": "plugin/agents/impeccable-finish-reviewer.md", "to": "agents/impeccable-finish-reviewer.md" },
+    { "source": "emil", "from": "skills/animate/SKILL.md", "to": "skills/impeccable/reference/animate-build.md" },
+    { "source": "emil", "from": "skills/animate/RECIPES.md", "to": "skills/impeccable/reference/animate-recipes.md" },
+    { "source": "emil", "from": "skills/review-animations/SKILL.md", "to": "skills/impeccable/reference/review-motion.md" },
+    { "source": "emil", "from": "skills/review-animations/STANDARDS.md", "to": "skills/impeccable/reference/motion-standards.md" },
+    { "source": "emil", "from": "skills/break-ui/CATALOG.md", "to": "skills/protolab-scenarios/worst-case.md" }
+  ]
+}

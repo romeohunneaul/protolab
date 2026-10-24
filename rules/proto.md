@@ -73,8 +73,34 @@ order); `load` imports `./protos/<slug>`.
 - ❌ A `useState` that carries a variant the panel should drive (a mode, a version of a block, a data set).
 - ❌ A copy of the proto folder to show another approach: that is a structural axis.
 
+## Design skills on a proto
+
+`impeccable` is the design pass on a proto (`/impeccable <command>`); the protolab skills own its
+structure and its data. Each request has one skill:
+
+| Request | Skill |
+|---|---|
+| A state, a version of a block, N approaches of a screen | `protolab-variant`, `protolab-diverge` |
+| Data: volumes, roles, worst-case content | `protolab-scenarios` |
+| The components a proto may use | `protolab-ds-context` |
+| The product context and the visual language, once per project | `impeccable init` (`PRODUCT.md`, from the brief), `impeccable document` (`DESIGN.md`) |
+| A critique, an audit, a polish; too busy, too bland; spacing, type, colour, wording, edge cases, sizes | `impeccable critique`, `audit`, `polish`, `distill`, `quieter`, `bolder`, `layout`, `typeset`, `colorize`, `clarify`, `harden`, `adapt` |
+| Build a motion, review one | `impeccable animate`, `impeccable review-motion` |
+
+- Their edits follow the rules above: the host's components, utility classes and tokens. A new
+  colour, font, shadow or keyframes is custom CSS, to ask before writing; `bolder`, `colorize`
+  and `typeset` stay within the host's tokens unless the user agrees.
+- A finding on a design-system component is reported, not fixed in the proto: the component is
+  not copied to change it.
+- Motion: a transition with the host's utility classes first; a motion library only if
+  `ds.offDs` lists it. A toast, a drawer or a menu comes from the design system, never from a
+  library picked for the proto.
+- The proto is throwaway: `audit` and `harden` run when the user asks, not by default.
+- Another design skill installed next to these (a plugin's critique, a `prototype` skill) is not
+  used on a proto.
+
 ## See also
 
 - `.claude/skills/protolab-create`, `protolab-variant`, `protolab-diverge`, `protolab-scenarios`,
-  `protolab-ds-context`, `protolab-review`.
+  `protolab-ds-context`, `protolab-review`, `impeccable`.
 - The README of `@romeohunneaul/protolab`: the manifest, the hooks, the panel.

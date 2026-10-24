@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-// Copy the protolab skills into the host project's .claude/skills/, so the agent knows how to
-// create a proto, add an axis, and read the design system; and the proto conventions into
-// .claude/rules/proto.md. Re-run after upgrading the package.
+// Copy the agent skills into the host project's .claude/skills/ (the protolab skills, and
+// impeccable for the design pass), impeccable's subagents into .claude/agents/, and the proto
+// conventions into .claude/rules/proto.md. A skill folder is replaced whole, so a file removed
+// from the package goes away. Re-run after upgrading the package.
 //
 // Usage: protolab-skills
 
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,8 +19,17 @@ mkdirSync(dest, { recursive: true });
 
 for (const skill of readdirSync(src)) {
   const existed = existsSync(join(dest, skill));
+  rmSync(join(dest, skill), { recursive: true, force: true });
   cpSync(join(src, skill), join(dest, skill), { recursive: true });
   console.log(`${existed ? "↻ updated" : "✓ installed"} .claude/skills/${skill}`);
+}
+
+const agents = join(root, ".claude", "agents");
+mkdirSync(agents, { recursive: true });
+for (const agent of readdirSync(join(pkg, "agents"))) {
+  const existed = existsSync(join(agents, agent));
+  cpSync(join(pkg, "agents", agent), join(agents, agent));
+  console.log(`${existed ? "↻ updated" : "✓ installed"} .claude/agents/${agent}`);
 }
 
 // The proto conventions, loaded by Claude Code when a file under the protos dir is edited.
@@ -30,3 +41,12 @@ const ruleExisted = existsSync(rulePath);
 mkdirSync(dirname(rulePath), { recursive: true });
 writeFileSync(rulePath, rule);
 console.log(`${ruleExisted ? "↻ updated" : "✓ installed"} .claude/rules/proto.md (paths: ${protosDir}/**/*.tsx)`);
+
+// The project copy of impeccable is protolab's: the plugin, if enabled too, doubles every command.
+try {
+  const list = JSON.parse(execFileSync("claude", ["plugin", "list", "--json"], { cwd: root, encoding: "utf8", stdio: "pipe", timeout: 30000 }));
+  const plugin = list.find((p) => p.id?.startsWith("impeccable@") && (p.enabled || p.projectEnabled));
+  if (plugin) console.log(`! the impeccable plugin is enabled too: disable it (claude plugin disable ${plugin.id}), protolab ships its own copy`);
+} catch {
+  // no claude CLI: nothing to compare with
+}

@@ -70,4 +70,7 @@ back when someone else installs the package (tags `v0.1.0` to `v0.3.0` stay as h
 - `rules/proto.md`: what a proto is and respects; shipped to hosts by `protolab-skills`.
 - `skills/*/SKILL.md`: what the agent does in a host; `.claude/skills/`: the engineering
   skills used in this repo (review, PR feedback, config audit, artefact definition).
+- `UPSTREAM.json`: the files copied from other repos (`skills/impeccable`, `agents/`,
+  `worst-case.md`). Adjust them here, list the change in `skills/impeccable/CHANGES.md`, and
+  follow upstream with `npm run upstream` (ADR 0008).
 - `examples/next/`: the test bench; `npm run dev` there, then `/lab`.

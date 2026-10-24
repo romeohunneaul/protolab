@@ -9,6 +9,7 @@
     "src",
     "bin",
     "skills",
+    "agents",
     "rules"
   ],
   "exports": {
@@ -25,7 +26,8 @@
     "typecheck": "npm --prefix examples/next run typecheck",
     "build:example": "npm --prefix examples/next run build",
     "smoke": "playwright test",
-    "check": "npm test && npm run typecheck && npm run build:example && npm run smoke"
+    "check": "npm test && npm run typecheck && npm run build:example && npm run smoke",
+    "upstream": "node scripts/upstream.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"

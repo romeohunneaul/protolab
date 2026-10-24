@@ -163,7 +163,7 @@ if (pkg.scripts["update:protolab"]) {
 
 console.log(`
 Next:
-  npx protolab-skills                                   # agent skills into .claude/skills/, proto rules into .claude/rules/
+  npx protolab-skills                                   # agent skills into .claude/skills/ and .claude/agents/, proto rules into .claude/rules/
   npx protolab-new <slug> "<Name>" "<Author>" "<Desc>"  # first proto → ${config.basePath}/p/<slug>
   npx protolab-check                                    # validate the manifest against the contract
   npm run update:protolab                               # later: follow the engine (main), refresh the skills, check

@@ -83,12 +83,35 @@ test("protolab-new refuses a slug that is not kebab-case, a duplicate, and a mis
 test("protolab-skills copies the agent skills into .claude/skills/", () => {
   const first = run("protolab-skills");
   assert.equal(first.status, 0, first.out);
-  for (const s of ["protolab-create", "protolab-variant", "protolab-diverge", "protolab-scenarios", "protolab-ds-context", "protolab-review"]) {
+  for (const s of ["protolab-create", "protolab-variant", "protolab-diverge", "protolab-scenarios", "protolab-ds-context", "protolab-review", "impeccable"]) {
     assert.ok(existsSync(join(host, ".claude/skills", s, "SKILL.md")), `${s} should be installed`);
     assert.match(first.out, new RegExp(`✓ installed \\.claude/skills/${s}`));
   }
+  for (const a of ["impeccable-asset-producer", "impeccable-documenter", "impeccable-finish-reviewer"]) {
+    assert.ok(existsSync(join(host, ".claude/agents", `${a}.md`)), `${a} should be installed`);
+  }
+  // A file left from an older copy goes away: the folder is replaced whole.
+  writeFileSync(join(host, ".claude/skills/impeccable/reference/live.md"), "stale\n");
   const second = run("protolab-skills");
   assert.match(second.out, /↻ updated \.claude\/skills\/protolab-create/);
+  assert.ok(!existsSync(join(host, ".claude/skills/impeccable/reference/live.md")));
+});
+
+test("protolab-skills warns when the impeccable plugin is enabled next to its copy", () => {
+  // A fake `claude` on the PATH answers `claude plugin list --json`.
+  const fakeBin = mkdtempSync(join(tmpdir(), "protolab-claude-"));
+  const skills = (plugins) => {
+    writeFileSync(join(fakeBin, "claude"), `#!/bin/sh\necho '${JSON.stringify(plugins)}'\n`, { mode: 0o755 });
+    return execFileSync(process.execPath, [bin("protolab-skills")], { cwd: host, encoding: "utf8", env: { ...process.env, PATH: fakeBin } });
+  };
+  try {
+    assert.match(skills([{ id: "impeccable@impeccable", enabled: true }]), /! the impeccable plugin is enabled too: disable it \(claude plugin disable impeccable@impeccable\)/);
+    assert.doesNotMatch(skills([{ id: "impeccable@impeccable", enabled: false }]), /impeccable plugin/);
+    assert.doesNotMatch(skills([]), /impeccable plugin/);
+    assert.doesNotMatch(execFileSync(process.execPath, [bin("protolab-skills")], { cwd: host, encoding: "utf8", env: { ...process.env, PATH: "" } }), /impeccable plugin/);
+  } finally {
+    rmSync(fakeBin, { recursive: true, force: true });
+  }
 });
 
 test("protolab-init refuses to run outside a host root, and a config that is not JSON", () => {

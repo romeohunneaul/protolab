@@ -6,7 +6,7 @@ The metric is the time between "I have an idea" and "I see it on screen".
 A prototype is a React component in your project, registered in one hand-editable manifest,
 served at `/lab/p/<slug>`, with **axes** (states, or competing versions of a block), **screens**
 and their **steps**, and **scenarios** (data sets), all switchable from a floating panel and
-encoded in the URL so a link restores the exact combination. Six agent skills ship with the
+encoded in the URL so a link restores the exact combination. Seven agent skills ship with the
 package, so Claude Code writes the protos for you:
 
 | Skill | Ask it to |
@@ -14,9 +14,16 @@ package, so Claude Code writes the protos for you:
 | `protolab-create` | create a proto from an intent, a brief, the jobs, your design system |
 | `protolab-variant` | add states, a competing version of a block (a structural axis), screens and steps |
 | `protolab-diverge` | build N approaches of a screen or a block to compare side by side, then keep one |
-| `protolab-scenarios` | add data sets: volumes, roles, personas |
+| `protolab-scenarios` | add data sets: volumes, roles, personas, the worst case |
 | `protolab-ds-context` | read your design system (code, Storybook, Claude Design) before touching anything |
 | `protolab-review` | turn the Vercel Comments on your previews into changes |
+| `impeccable` | the design pass: `/impeccable critique`, `audit`, `polish`, `layout`, `typeset`, `clarify`, `animate`, `review-motion`… |
+
+`impeccable` is an adjusted copy of [pbakaus/impeccable](https://github.com/pbakaus/impeccable),
+with motion from [emilkowalski/skills](https://github.com/emilkowalski/skills): the commands that
+duplicate the lab (live variants, framing) are removed, and `rules/proto.md` keeps its edits within
+your design system (ADR 0008, `skills/impeccable/CHANGES.md`). If you also have the impeccable
+plugin, `protolab-skills` tells you to disable it.
 
 Works with Next.js App Router (15+), React 19 and Tailwind CSS v4 (the panel and the dashboard
 are styled with Tailwind classes).
@@ -132,7 +139,7 @@ that returns `null` in production. The package stays free of that dependency.
 npx protolab-init                                              # once: wire the lab
 npx protolab-new <slug> "<Name>" "<Author>" "<Description>"   # scaffold + register
 npx protolab-check                                             # validate the manifest against the contract
-npx protolab-skills                                            # skills into .claude/skills/, proto rules into .claude/rules/
+npx protolab-skills                                            # skills into .claude/skills/, subagents into .claude/agents/, proto rules into .claude/rules/
 ```
 
 `protolab-check` evaluates the manifest (Node 22.6+ with type stripping) and lists every error at
@@ -240,6 +247,20 @@ authors do not follow its development.
 | `useAxis`, `useScreen`, `useScenario`, `AxisSlot` | read an axis; read and change the current screen and step; read a scenario's data; render the current value of a structural axis |
 | `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page (`LabPanel` takes `open` and `onOpenChange`) |
 
+## Copied skills
+
+`skills/impeccable`, `agents/` and `skills/protolab-scenarios/worst-case.md` are copies of other
+repos, pinned in `UPSTREAM.json` and adjusted here. To follow them:
+
+```bash
+npm run upstream              # which sources have newer commits, with a compare link
+npm run upstream -- --apply   # merge them into the copies, keeping the local changes; move the pins
+```
+
+The merge is three-way per file (the pinned upstream, the newer one, the copy): a conflict is left
+as markers in the file. Resolve, review the diff, list any new adjustment in `CHANGES.md`, and open
+a PR. Hosts get it with `npm run update:protolab`.
+
 ## Layout of this repo
 
 | Folder | What |
@@ -247,7 +268,9 @@ authors do not follow its development.
 | `src/` | the engine. Edited here only; consumers never patch it in `node_modules` |
 | `bin/` | `protolab-init`, `protolab-new`, `protolab-check`, `protolab-skills` |
 | `test/` | `bin.test.mjs` (node:test) and `smoke.spec.ts` (Playwright) |
-| `skills/` | the agent skills, copied into consumers by `protolab-skills` |
+| `skills/` | the agent skills, copied into consumers by `protolab-skills`; `skills/impeccable` is a pinned copy (below) |
+| `agents/` | impeccable's subagents, copied into consumers' `.claude/agents/` |
+| `UPSTREAM.json`, `scripts/upstream.mjs` | the files copied from other repos and their pinned commits; `npm run upstream` |
 | `rules/` | `proto.md`, what a proto is and respects; installed into consumers' `.claude/rules/` by `protolab-skills`, with `paths` set from `protosDir` |
 | `examples/next/` | a minimal Next app wired to the local engine (`file:../..`): edits in `src/` show live |
 | `docs/adr/` | one short ADR per decision; `CHANGELOG.md` at the root lists what changed, with migration steps |
@@ -273,4 +296,8 @@ the Chromium that Playwright finds on the machine (`npx playwright install chrom
 
 ## License
 
-MIT
+MIT, except the copied files listed in `UPSTREAM.json`: `skills/impeccable/` and `agents/` come
+from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0, `LICENSE` and
+`NOTICE.md` in that folder, changes in `CHANGES.md`); its motion references and
+`skills/protolab-scenarios/worst-case.md` come from
+[emilkowalski/skills](https://github.com/emilkowalski/skills) (MIT), with their notice.
