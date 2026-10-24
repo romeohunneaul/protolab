@@ -1,16 +1,8 @@
----
-name: protolab-diverge
-description: Produces several competing approaches of a screen or a block of an existing proto (3 by default), as the values of one structural axis, to compare side by side in the lab's comparison view, then converges on the one the user keeps. Use when the user says "propose-moi N approches", "explore plusieurs directions", "diverge sur ce hero", "montre-moi d'autres façons de faire cet écran", "give me 3 options", or "on garde la B" to converge. For one extra version of a block the user already described, use protolab-variant.
----
-
-# protolab: diverge, then converge
+# Diverge, then converge
 
 Divergence is how the lab compares directions before choosing one: each approach is a full,
 working version built with the host's components, and the comparison view shows them side by
 side at the same size and the same state. No design canvas: everything lives in the host repo.
-
-**Before writing:** read `.claude/rules/proto.md`, `protolab.config.json`, the proto (manifest
-entry and folder), its brief if the entry declares one (`brief`), and run `protolab-ds-context`.
 
 ## 1. Frame the divergence
 
@@ -32,7 +24,7 @@ directions are yours to propose: say them, then build.
 
 ## 2. Build each approach
 
-One structural axis, one value per approach, one file per value (see `protolab-variant`,
+One structural axis, one value per approach, one file per value (see `/protolab variant`,
 section 3, for the exact shapes):
 
 ```ts
@@ -50,7 +42,7 @@ section 3, for the exact shapes):
 - The root places `<AxisSlot axis="<key>" />`; when the whole screen diverges, the root is only
   the slot, and what all approaches keep identical (a heading, the data) goes in a sibling file
   each approach imports. When the proto already has a structural axis on the same area, nest the slots instead
-  (`protolab-variant`, section 3): every existing value places the new slot, so each approach
+  (`/protolab variant`, section 3): every existing value places the new slot, so each approach
   combines with each existing value.
 - Keep the existing axes, values and ids: never remove one to make room for the approaches.
 - The approaches differ in structure and hierarchy, and all use the design system. An approach
@@ -79,4 +71,4 @@ When the user keeps one approach ("on garde la B", "keep zero-error"):
 
 - Divergence is a structural axis, never several protos and never copies of the proto folder.
 - Keys and ids in kebab-case; labels short, they title the comparison cells.
-- An approach is not a theme or a colour change: that is a state axis (`protolab-variant`).
+- An approach is not a theme or a colour change: that is a state axis (`/protolab variant`).

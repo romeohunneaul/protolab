@@ -83,18 +83,22 @@ test("protolab-new refuses a slug that is not kebab-case, a duplicate, and a mis
 test("protolab-skills copies the agent skills into .claude/skills/", () => {
   const first = run("protolab-skills");
   assert.equal(first.status, 0, first.out);
-  for (const s of ["protolab-create", "protolab-variant", "protolab-diverge", "protolab-scenarios", "protolab-ds-context", "protolab-review", "impeccable"]) {
+  for (const s of ["protolab", "impeccable"]) {
     assert.ok(existsSync(join(host, ".claude/skills", s, "SKILL.md")), `${s} should be installed`);
     assert.match(first.out, new RegExp(`✓ installed \\.claude/skills/${s}`));
   }
   for (const a of ["impeccable-asset-producer", "impeccable-documenter", "impeccable-finish-reviewer"]) {
     assert.ok(existsSync(join(host, ".claude/agents", `${a}.md`)), `${a} should be installed`);
   }
-  // A file left from an older copy goes away: the folder is replaced whole.
+  // A file left from an older copy goes away (the folder is replaced whole), and so does a retired skill.
   writeFileSync(join(host, ".claude/skills/impeccable/reference/live.md"), "stale\n");
+  mkdirSync(join(host, ".claude/skills/protolab-variant"));
+  writeFileSync(join(host, ".claude/skills/protolab-variant/SKILL.md"), "retired\n");
   const second = run("protolab-skills");
-  assert.match(second.out, /↻ updated \.claude\/skills\/protolab-create/);
+  assert.match(second.out, /↻ updated \.claude\/skills\/protolab\n/);
   assert.ok(!existsSync(join(host, ".claude/skills/impeccable/reference/live.md")));
+  assert.match(second.out, /✗ removed \.claude\/skills\/protolab-variant \(now \/protolab\)/);
+  assert.ok(!existsSync(join(host, ".claude/skills/protolab-variant")));
 });
 
 test("protolab-skills warns when the impeccable plugin is enabled next to its copy", () => {

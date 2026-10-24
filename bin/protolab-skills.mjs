@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// Copy the agent skills into the host project's .claude/skills/ (the protolab skills, and
-// impeccable for the design pass), impeccable's subagents into .claude/agents/, and the proto
-// conventions into .claude/rules/proto.md. A skill folder is replaced whole, so a file removed
-// from the package goes away. Re-run after upgrading the package.
+// Copy the agent skills into the host project's .claude/skills/ (protolab, and impeccable for the
+// design pass), impeccable's subagents into .claude/agents/, and the proto conventions into
+// .claude/rules/proto.md. A skill folder is replaced whole, so a file removed from the package
+// goes away, and the skills the package no longer ships are removed. Re-run after upgrading the
+// package.
 //
 // Usage: protolab-skills
 
@@ -16,6 +17,13 @@ const root = process.cwd();
 const src = join(pkg, "skills");
 const dest = join(root, ".claude", "skills");
 mkdirSync(dest, { recursive: true });
+
+// The six skills that became the commands of `protolab`.
+for (const old of ["create", "variant", "diverge", "scenarios", "ds-context", "review"].map((n) => `protolab-${n}`)) {
+  if (!existsSync(join(dest, old))) continue;
+  rmSync(join(dest, old), { recursive: true, force: true });
+  console.log(`✗ removed .claude/skills/${old} (now /protolab)`);
+}
 
 for (const skill of readdirSync(src)) {
   const existed = existsSync(join(dest, skill));

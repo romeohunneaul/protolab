@@ -1,15 +1,8 @@
----
-name: protolab-scenarios
-description: Adds context scenarios to a proto of the lab - the data the screen renders with (a volume of 0, 12 or 500 items, a role that sees other rows, a persona whose numbers and names differ, a worst case of long names, unbreakable emails and extreme numbers) - as data sets switchable from the panel and kept in the URL. Use when the user says "teste avec beaucoup de données", "et si la liste est vide", "avec 500 lignes", "vu par un admin", "ajoute des scénarios", "le pire cas", "casse l'UI", "add realistic data", "worst case". For a mode of the screen (empty, loading, error) forced by the component, or a wording that changes per persona, use protolab-variant.
----
-
-# protolab: context scenarios
+# Context scenarios
 
 A scenario is a context the proto renders in: its **data**. The panel switches it like an axis,
 the URL carries it (`?s.<key>=<id>`), and the data set of the current value loads in the
 browser when it becomes current. A scenario carries data, never a mode of the screen.
-
-**Before writing:** read `.claude/rules/proto.md`, `protolab.config.json` and the proto.
 
 ## 1. Scenario or axis?
 
@@ -18,7 +11,7 @@ browser when it becomes current. A scenario carries data, never a mode of the sc
 | The number of items: 0, 12, 500 | a scenario |
 | The rows a role is allowed to see | a scenario |
 | A persona whose numbers and names differ | a scenario |
-| A persona where only the wording of the component changes | a state axis (`protolab-variant`) |
+| A persona where only the wording of the component changes | a state axis (`/protolab variant`) |
 | The empty state forced by the component whatever the data | a state axis; a scenario with 0 items produces it through the data. If the proto already has an empty state axis, keep it and add the scenario next to it: removing the axis breaks links and the side-by-side comparison of empty vs full |
 
 A scenario cannot be compared side by side (the comparison view varies an axis). If the user
@@ -83,7 +76,7 @@ scenarios: [
 
 Component (`"use client"`): the root, or the component that shows the data. When several values
 or slots show it, read it once in a context provider at the root and share it
-(`protolab-variant`, section 3):
+(`/protolab variant`, section 3):
 
 ```tsx
 import { useScenario } from "@romeohunneaul/protolab";

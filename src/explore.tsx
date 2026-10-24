@@ -235,7 +235,7 @@ function composePrompt(input: {
     `Request: ${text.trim()}`,
     "",
     "Apply this request in this project with the Protolab skills (in .claude/skills/; run `npx protolab-skills` if they are missing).",
-    "- First decide what it is, and say which: a new value of an existing axis; a new state axis (a mode: empty, compact, a wording); a structural axis (competing versions of a block or of the layout); several approaches of the screen (protolab-diverge); a scenario (the data: volumes, roles, personas; protolab-scenarios); screens or steps.",
+    "- First decide what it is, and say which: a new value of an existing axis; a new state axis (a mode: empty, compact, a wording); a structural axis (competing versions of a block or of the layout); several approaches of the screen (`/protolab diverge`); a scenario (the data: volumes, roles, personas; `/protolab scenarios`); screens or steps.",
     "- Change only this proto: its files and its manifest entry. Keep its existing axes, values and ids.",
     "- Reuse the host's components without restyling them; do not edit the design system or the engine.",
     ...(element ? ["- The element was rendered in the state above: a block that comes from a structural axis lives in the component of that axis's current value."] : []),

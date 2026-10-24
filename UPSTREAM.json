@@ -14,6 +14,6 @@
     { "source": "emil", "from": "skills/animate/RECIPES.md", "to": "skills/impeccable/reference/animate-recipes.md" },
     { "source": "emil", "from": "skills/review-animations/SKILL.md", "to": "skills/impeccable/reference/review-motion.md" },
     { "source": "emil", "from": "skills/review-animations/STANDARDS.md", "to": "skills/impeccable/reference/motion-standards.md" },
-    { "source": "emil", "from": "skills/break-ui/CATALOG.md", "to": "skills/protolab-scenarios/worst-case.md" }
+    { "source": "emil", "from": "skills/break-ui/CATALOG.md", "to": "skills/protolab/reference/worst-case.md" }
   ]
 }

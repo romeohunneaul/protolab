@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Scaffold a prototype in the host project: create <protosDir>/<slug>/index.tsx and register it
-// in the manifest. Deterministic, so `protolab-create` never hand-edits the manifest.
+// in the manifest. Deterministic, so `/protolab create` never hand-edits the manifest.
 //
 // Usage: protolab-new <slug> "<Name>" "<Author>" "<Description>"
 // Paths come from protolab.config.json at the project root (all optional):
@@ -36,7 +36,7 @@ const component = `"use client";
 
 // Prototype: ${name}. Reuses the project's real components from ${config.componentsDir}/ — never restyle them.
 // Conventions: .claude/rules/proto.md (installed by protolab-skills).
-// To react to a variant axis: const state = useAxis("state");  (add axes with protolab-variant)
+// To react to a variant axis: const state = useAxis("state");  (add axes with /protolab variant)
 // Several views (list → detail)? Declare screens on the entry, then: const { screen, go } = useScreen();
 
 // No styling here on purpose: build with the host's components and tokens (.claude/rules/proto.md).

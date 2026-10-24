@@ -10,7 +10,8 @@
     "bin",
     "skills",
     "agents",
-    "rules"
+    "rules",
+    "CHANGELOG.md"
   ],
   "exports": {
     ".": "./src/index.ts"
