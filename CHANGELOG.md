@@ -21,6 +21,22 @@ All notable changes to this project are documented here. The format follows
   what changed since the pinned commit from the changelog, proposes the migrations and the commit.
   The package ships `CHANGELOG.md` for it.
 
+### Fixed
+
+- Viewport and comparison frames keep their exact size: a frame wider than the render zone was
+  shrunk while the footer still named the preset; now the zone scrolls and the left edge stays in
+  reach. The clean page at a size does the same.
+- A frame no longer reloads after a gesture inside it: the lab compared links with their params in
+  order.
+- Panel accessibility: a field's label names its select alone (clicking `Density` no longer opens
+  Explore through the `+ Add` it wrapped); a visible focus ring on the dark panel; tabs with
+  `tabpanel`s, arrow keys, `Home` and `End`; `Copied` and Explore notices announced to screen
+  readers; small text at 11px and readable contrast; targets at least 24px high.
+- The panel sets its own font and dark form controls instead of inheriting the host's.
+- Collapsing the panel keeps the Explore draft.
+- The comparison zone sets its text color, readable on a host with a dark theme.
+- Two param writes in a row no longer lose the first: writes build on the URL at call time.
+
 Existing hosts: `npm run update:protolab`. If impeccable was installed as a plugin, disable it; a
 copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 

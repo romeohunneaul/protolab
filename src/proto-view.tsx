@@ -47,7 +47,7 @@ function View({ proto, protos = [], basePath = "/lab", annotation }: { proto: Pr
           <>
             {/* With a frame or a grid, the render zone covers the window left of the panel: it escapes the
                 host's layout (each frame already renders it) and scrolls on its own, never under the panel. */}
-            <div className={compared || size ? `fixed inset-0 z-40 overflow-auto bg-neutral-100 ${open ? "sm:right-80" : ""}` : undefined} data-lab-zone>
+            <div className={compared || size ? `fixed inset-0 z-40 overflow-auto bg-neutral-100 text-neutral-900 ${open ? "sm:right-80" : ""}` : undefined} data-lab-zone>
               {compared ? <CompareGrid axis={compared} size={size} /> : size ? <ViewportFrame width={size.width} height={size.height} /> : <Component />}
             </div>
             <LabPanel proto={ref(proto)} protos={protos.map(ref)} basePath={basePath} open={open} onOpenChange={setOpen} />
@@ -89,8 +89,8 @@ function CleanPage({ size, children }: { size: { width: number; height: number }
   useDesignation(designating, pick, cancel, root);
   if (!size) return <>{children}</>;
   return (
-    <div className="flex justify-center">
-      <div style={{ width: size.width, height: size.height }} className="overflow-auto">
+    <div className="flex w-max min-w-full justify-center">
+      <div style={{ width: size.width, height: size.height }} className="shrink-0 overflow-auto">
         {children}
       </div>
     </div>

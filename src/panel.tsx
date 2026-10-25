@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   COMPARE_PARAM,
@@ -25,6 +25,11 @@ import { ExploreTab, type Seed } from "./explore";
 type Ref = { slug: string; name: string; offDs?: boolean };
 type Option = { id: string; label: string };
 type Tab = "Variants" | "Viewport" | "Compare" | "Explore";
+const TABS: Tab[] = ["Variants", "Viewport", "Compare", "Explore"];
+
+// The panel sets what it must not inherit from the host: the font, dark form controls, a focus ring
+// that reads on its dark background.
+const CHROME = "font-sans [color-scheme:dark] [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-sky-400";
 
 /** The viewport presets, the same for every host and every proto; a missing size goes in Custom. */
 export const PRESETS: { label: string; width: number; height: number }[] = [
@@ -68,6 +73,17 @@ export function LabPanel({
   };
   const search = params.toString();
   useEffect(() => setFallback(null), [search]);
+  const id = useId();
+  // Tabs follow the ARIA pattern: arrows, Home and End move the selection and the focus together.
+  const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    const i = TABS.indexOf(tab);
+    const to = ({ ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: TABS.length - 1 } as Record<string, number>)[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    const next = TABS[(to + TABS.length) % TABS.length];
+    setTab(next);
+    document.getElementById(`${id}-tab-${next}`)?.focus();
+  };
 
   const copy = async (which: string, href: string) => {
     try {
@@ -85,15 +101,7 @@ export function LabPanel({
     return url.href;
   };
 
-  if (!open) {
-    return (
-      <button type="button" onClick={() => onOpenChange(true)} className="fixed bottom-4 right-4 z-50 rounded-full bg-[#1c1c1c] px-3 py-1.5 text-xs text-white shadow-xl" data-lab-ui>
-        Lab · {proto.name}
-      </button>
-    );
-  }
-
-  const button = "text-neutral-300 hover:text-white";
+  const button = "inline-flex min-h-6 items-center rounded px-1 text-neutral-300 hover:text-white";
   const screen = screens.find((s) => s.key === screenValue(screens, params));
   const steps = screen?.steps ?? [];
   const size = viewportValue(params);
@@ -110,23 +118,38 @@ export function LabPanel({
     .filter(Boolean)
     .join(" · ");
 
+  // Collapsed, the panel stays mounted and hidden, so an Explore draft survives a collapse.
   return (
-    <aside className="fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-[#1c1c1c] text-white shadow-xl sm:w-80" data-lab-ui>
+    <>
+      {!open && (
+        <button
+          type="button"
+          onClick={() => onOpenChange(true)}
+          className="fixed bottom-4 right-4 z-50 rounded-full bg-[#1c1c1c] px-3 py-1.5 font-sans text-xs text-white shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+          data-lab-ui
+        >
+          Lab · {proto.name}
+        </button>
+      )}
+    <aside className={`fixed inset-y-0 right-0 z-50 ${open ? "flex" : "hidden"} w-full flex-col bg-[#1c1c1c] text-white shadow-xl sm:w-80 ${CHROME}`} data-lab-ui>
       <div className="border-b border-neutral-800 p-3 text-xs">
         <div className="mb-2 flex items-center justify-between">
           <Link href={basePath} className={button}>
             ← Lab
           </Link>
-          <span className="flex gap-3">
+          <span className="flex gap-2">
             <button type="button" onClick={() => copy("link", currentHref())} className={button}>
               {copied === "link" ? "Copied" : "Copy link"}
             </button>
             <button type="button" onClick={() => copy("clean", cleanHref())} className={button}>
               {copied === "clean" ? "Copied" : "Copy clean link"}
             </button>
-            <button type="button" onClick={() => onOpenChange(false)} className={button} aria-label="Collapse the lab panel">
+            <button type="button" onClick={() => onOpenChange(false)} className={`${button} min-w-6 justify-center`} aria-label="Collapse the lab panel">
               —
             </button>
+          </span>
+          <span className="sr-only" aria-live="polite">
+            {copied && "Link copied"}
           </span>
         </div>
         {protos.length > 1 ? (
@@ -134,19 +157,34 @@ export function LabPanel({
         ) : (
           <p className="text-sm font-semibold">{proto.name}</p>
         )}
-        {proto.offDs && <p className="mt-1 text-[10px] uppercase tracking-wide text-amber-400">Off design system</p>}
+        {proto.offDs && <p className="mt-1 text-[11px] uppercase tracking-wide text-amber-400">Off design system</p>}
         {fallback && <input readOnly value={fallback} autoFocus onFocus={(e) => e.currentTarget.select()} className="mt-2 w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs" aria-label="Link to copy" />}
       </div>
-      <nav className="flex border-b border-neutral-800 text-xs" role="tablist">
-        {(["Variants", "Viewport", "Compare", "Explore"] as Tab[]).map((t) => (
-          <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`flex-1 px-3 py-2 ${tab === t ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white"}`}>
+      <div className="flex border-b border-neutral-800 text-xs" role="tablist" aria-label="Lab panel" onKeyDown={onTabKey}>
+        {TABS.map((t) => (
+          <button
+            key={t}
+            id={`${id}-tab-${t}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === t}
+            aria-controls={`${id}-panel-${t}`}
+            tabIndex={tab === t ? 0 : -1}
+            onClick={() => setTab(t)}
+            className={`flex-1 px-3 py-2 ${tab === t ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white"}`}
+          >
             {t}
           </button>
         ))}
-      </nav>
+      </div>
       <div className="flex-1 overflow-y-auto p-3">
-        <div hidden={tab !== "Variants"} className="grid gap-2">
-            {screens.length === 0 && axes.length === 0 && scenarios.length === 0 && <p className="text-xs text-neutral-500">No variants declared yet</p>}
+        <div {...tabPanel(id, "Variants", tab)} className="grid gap-2">
+            {screens.length === 0 && axes.length === 0 && scenarios.length === 0 && (
+              <>
+                <p className="text-xs text-neutral-400">No variants declared yet</p>
+                <p className="text-[11px] text-neutral-400">Declare screens, axes or scenarios in this proto&apos;s manifest entry.</p>
+              </>
+            )}
             {screens.length > 0 && (
               <Field label="Screen" value={screenValue(screens, params)} options={screens.map((s) => ({ id: s.key, label: s.label }))} onChange={(key) => write({ [SCREEN_PARAM]: key, [STEP_PARAM]: null }, "push")} />
             )}
@@ -165,7 +203,7 @@ export function LabPanel({
                 onAdd={() => explore(`Add an option to "${axis.label}": `)}
               />
             ))}
-            {scenarios.length > 0 && <p className="mt-1 text-[10px] uppercase tracking-wide text-neutral-500">Scenarios</p>}
+            {scenarios.length > 0 && <p className="mt-1 text-[11px] uppercase tracking-wide text-neutral-400">Scenarios</p>}
             {scenarios.map((scenario) => (
               <Field
                 key={scenario.key}
@@ -180,26 +218,29 @@ export function LabPanel({
               + Explore a variant
             </button>
         </div>
-        <div hidden={tab !== "Viewport"}>
+        <div {...tabPanel(id, "Viewport", tab)}>
           <ViewportTab size={size} onChange={(v) => write({ [VIEWPORT_PARAM]: v }, "replace")} />
         </div>
-        <div hidden={tab !== "Compare"}>
+        <div {...tabPanel(id, "Compare", tab)}>
           {axes.length === 0 ? (
-            <p className="text-xs text-neutral-500">No axis to compare</p>
+            <p className="text-xs text-neutral-400">No axis to compare</p>
           ) : (
             <CompareTab axes={axes.map((a) => ({ id: a.key, label: a.label }))} compared={compared?.key} onCompare={(key) => write({ [COMPARE_PARAM]: key }, "push")} onExit={() => write({ [COMPARE_PARAM]: null }, "push")} />
           )}
         </div>
-        <div hidden={tab !== "Explore"}>
+        <div {...tabPanel(id, "Explore", tab)}>
           <ExploreTab proto={proto} basePath={basePath} compared={!!compared} framed={!!size && !compared} seed={seed} />
         </div>
       </div>
-      <p className="truncate border-t border-neutral-800 px-3 py-2 text-[10px] text-neutral-500" title={state} data-lab-state>
+      <p className="truncate border-t border-neutral-800 px-3 py-2 text-[11px] text-neutral-400" title={state} data-lab-state>
         {state}
       </p>
     </aside>
+    </>
   );
 }
+
+const tabPanel = (id: string, t: Tab, current: Tab) => ({ id: `${id}-panel-${t}`, role: "tabpanel", "aria-labelledby": `${id}-tab-${t}`, hidden: current !== t });
 
 function ViewportTab({ size, onChange }: { size: { width: number; height: number } | null; onChange: (v: string | null) => void }) {
   const preset = size && PRESETS.find((p) => p.width === size.width && p.height === size.height);
@@ -217,12 +258,12 @@ function ViewportTab({ size, onChange }: { size: { width: number; height: number
       {PRESETS.map((p) => (
         <button key={p.label} type="button" aria-pressed={preset?.label === p.label} onClick={() => onChange(`${p.width}x${p.height}`)} className={row(preset?.label === p.label)}>
           <span>{p.label}</span>
-          <span className="text-neutral-500">{`${p.width} × ${p.height}`}</span>
+          <span className="text-neutral-400">{`${p.width} × ${p.height}`}</span>
         </button>
       ))}
       <button type="button" aria-pressed={!!custom} onClick={() => setEditing(true)} className={row(!!custom)}>
         <span>Custom</span>
-        {custom && <span className="text-neutral-500">{`${size.width} × ${size.height}`}</span>}
+        {custom && <span className="text-neutral-400">{`${size.width} × ${size.height}`}</span>}
       </button>
       {editing && (
         <form
@@ -284,35 +325,34 @@ function Field({
   disabled?: boolean;
   onAdd?: () => void;
 }) {
+  // The label names the select alone: the "+ Add" button sits next to it, never inside it.
+  const id = useId();
   return (
-    <label className="grid gap-0.5 text-[11px] text-neutral-400">
+    <div className="grid gap-0.5 text-[11px] text-neutral-400">
       <span className="flex items-center justify-between">
         <span>
-          {label}
-          {hint && <span className="ml-2 text-neutral-500">{hint}</span>}
+          <label htmlFor={id}>{label}</label>
+          {hint && <span className="ml-2 text-neutral-300">{hint}</span>}
         </span>
         {onAdd && (
           <button
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              onAdd();
-            }}
+            onClick={onAdd}
             aria-label={`Add an option to ${typeof label === "string" ? label : "this axis"}`}
             title="Add an option"
-            className="rounded px-1.5 py-0.5 text-[11px] text-neutral-300 hover:bg-neutral-800 hover:text-white"
+            className="min-h-6 rounded px-1.5 text-[11px] text-neutral-300 hover:bg-neutral-800 hover:text-white"
           >
             + Add
           </button>
         )}
       </span>
-      <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-white disabled:opacity-50">
+      <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} className="rounded-md border border-neutral-700 bg-neutral-900 px-2 py-1 text-xs text-white disabled:opacity-50">
         {options.map((o) => (
           <option key={o.id} value={o.id}>
             {o.label}
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }

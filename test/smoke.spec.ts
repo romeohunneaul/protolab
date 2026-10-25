@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 // The lab index, one proto, an axis switch, the URL that carries it, three sizes.
-const select = (page: Page, label: string) => page.locator("[data-lab-ui] label:visible", { hasText: label }).locator("select");
+const select = (page: Page, label: string) => page.locator("[data-lab-ui]").getByLabel(label, { exact: true });
 
 test("/lab lists the example protos", async ({ page }) => {
   await page.goto("/lab");
@@ -82,15 +82,39 @@ test("viewport: a preset writes the size in the URL and frames the clean page at
   // Inside the frame: the clean page, no panel; a click moves the lab URL to the detail screen.
   const inner = page.frameLocator("iframe[data-lab-frame]");
   await expect(inner.locator("[data-lab-ui]")).toHaveCount(0);
+  await inner.locator("body").evaluate(() => ((window as unknown as { mark: number }).mark = 1));
   await inner.getByRole("button", { name: /Invoice #1042/ }).click();
   await expect(page).toHaveURL(/screen=detail/);
   await expect(page).toHaveURL(/v=390x844/);
   await expect(inner.getByRole("heading", { name: "Invoice #1042" })).toBeVisible();
+  // The lab URL now lists the params in another order than the frame's: the frame is not reloaded.
+  expect(await inner.locator("body").evaluate(() => (window as unknown as { mark?: number }).mark)).toBe(1);
   // Free size removes the param and renders the proto in the page again.
   await page.getByRole("button", { name: "Free size" }).click();
   await expect(page).not.toHaveURL(/v=/);
   await expect(frame).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Invoice #1042" })).toBeVisible();
+});
+
+test("viewport: a frame wider than the render zone keeps its exact size, its left edge in reach", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/lab/p/flow?v=1440x900");
+  const box = await page.locator("iframe[data-lab-frame]").boundingBox();
+  expect(box?.width).toBe(1440);
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+});
+
+test("panel: a label names its select alone; the tabs move with the arrow keys", async ({ page }) => {
+  await page.goto("/lab/p/flow");
+  await page.locator("[data-lab-ui] label", { hasText: "Density" }).click();
+  await expect(select(page, "Density")).toBeFocused();
+  await expect(page.getByRole("tab", { name: "Variants" })).toHaveAttribute("aria-selected", "true");
+  await page.getByRole("tab", { name: "Variants" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "Viewport" })).toBeFocused();
+  await expect(page.getByRole("tab", { name: "Viewport" })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("End");
+  await expect(page.getByRole("tab", { name: "Explore" })).toHaveAttribute("aria-selected", "true");
 });
 
 test("compare: a grid with one clean-page cell per value, the current one marked; Open leaves with that value", async ({ page }) => {
@@ -199,6 +223,15 @@ test("explore: pointing at an element names it, the click does not trigger it, a
   await expect(page.getByText("Designation cleared: the state changed")).toBeVisible();
   await expect(named).toHaveCount(0);
   await expect(page.locator("[data-lab-explore] textarea").first()).toHaveValue("make this row a card"); // the draft survives
+});
+
+test("explore: collapsing the panel keeps the draft", async ({ page }) => {
+  await page.goto("/lab/p/flow");
+  await page.getByRole("tab", { name: "Explore" }).click();
+  await page.locator("[data-lab-explore] textarea").first().fill("a draft");
+  await page.getByRole("button", { name: "Collapse the lab panel" }).click();
+  await page.getByRole("button", { name: /^Lab · / }).click();
+  await expect(page.locator("[data-lab-explore] textarea").first()).toHaveValue("a draft");
 });
 
 test("explore: pointing inside the viewport frame goes through the frame bridge; the comparison view disables it", async ({ page }) => {
