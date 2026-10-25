@@ -14,9 +14,10 @@ registered in one manifest, served at `<basePath>/p/<slug>`, with its state in t
 ## Before any write
 
 1. Read `.claude/rules/proto.md`: what a proto is and respects.
-2. Read `protolab.config.json`: `protosDir`, `manifest`, `componentsDir`, `basePath`, `ds`.
-3. On an existing proto, read its manifest entry, its folder `<protosDir>/<slug>/`, and its brief
-   when the entry declares one (`brief`).
+2. Read `protolab.config.json`: `protosDir`, `manifest`, `componentsDir`, `basePath`, `ds`, `app`.
+3. On an existing proto, read its manifest entry, its folder `<protosDir>/<slug>/` (its
+   `context.md` first, when `create` wrote one), and its brief when the entry declares one
+   (`brief`).
 4. Before picking a component you have not read in this session, run `ds`.
 
 `ds`, `review` and `update` write no proto: they skip steps 3 and 4.
@@ -25,7 +26,7 @@ registered in one manifest, served at `<basePath>/p/<slug>`, with its state in t
 
 | Command | Description | Reference |
 |---|---|---|
-| `create [intent]` | A new proto, its folder and its manifest entry, from the intent and the brief | [reference/create.md](reference/create.md) |
+| `create [intent]` | A new proto from a clarified brief, mapped to the design system and shaped like the real app | [reference/create.md](reference/create.md) |
 | `variant [slug]` | A state axis, a structural axis, screens or steps on a proto | [reference/variant.md](reference/variant.md) |
 | `diverge [slug]` | N competing approaches of a block or a screen, then converge on one | [reference/diverge.md](reference/diverge.md) |
 | `scenarios [slug]` | Data sets: volumes, roles, personas, the worst case | [reference/scenarios.md](reference/scenarios.md) · [reference/worst-case.md](reference/worst-case.md) |

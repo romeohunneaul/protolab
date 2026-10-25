@@ -15,6 +15,7 @@ no route outside the lab), nor an HTML mock-up, nor a component of the design sy
   index.tsx              # default export: the proto's root component
   <axis>-<value>.tsx     # one per value of a structural axis (optional)
   data.ts                # its data: constants, and the data sets of its scenarios (optional)
+  context.md             # what /protolab create read: elements, components, data sources (optional)
 ```
 
 ```tsx

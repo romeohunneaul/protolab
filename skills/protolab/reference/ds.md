@@ -3,6 +3,9 @@
 > You know a component only after reading its file in the host's components folder. Training
 > data is never a source: if you have not read the file, you do not know.
 
+Input: the elements of the screen (`/protolab create`, step 1), or the blocks a variant or an
+approach needs. Each one ends up mapped to what exists, or named as a gap.
+
 ## 1. Read the config
 
 `protolab.config.json` at the host root:
@@ -11,6 +14,8 @@
 - `ds.docs`: where the design system is documented beyond the code.
 - `ds.offDs`: libraries a proto may use outside the design system (`["shadcn"]`). Absent or
   empty: none.
+- `app`: where the real app lives, when the protos live in a repo of their own. Absent: the host
+  itself.
 
 ## 2. The coded components, primary source
 
@@ -22,6 +27,10 @@
   the package name (`import { Button } from "@scope/ds"`), never from a file path.
 - The host's utility classes and tokens live in its global stylesheet (often
   `src/app/globals.css`): reuse them, never hard-code a colour.
+- **The compositions**: for each element, search the app (`app`, else the host) for a page or a
+  block that already solves it with these components (a filter bar, a list with its empty state,
+  a page shell). Read it: how it combines the components, with which props. An existing
+  composition is reused, not rebuilt from the atoms.
 
 ## 3. The declared documentation, secondary
 
@@ -40,9 +49,10 @@ components a proto uses stay those of `componentsDir`.
 
 ## 4. Hand over
 
-A short list: the components relevant to the task with their real props and states, how to
-import them, and the **gaps** (what the task needs and no component covers: no `Tabs`, no side
-panel). A gap is a product signal, not an invitation to write custom CSS:
+A table, one row per element: the element, what covers it (a component and its import, or a
+composition and its file), the real props and states to use, or **gap** (what the task needs and
+nothing covers: no `Tabs`, no side panel). A gap is a product signal, not an invitation to write
+custom CSS:
 
 - compose with existing components when a faithful composition exists (chips as tabs), and say so;
 - or use a library listed in `ds.offDs`, and mark the proto `offDs: true` in the manifest;
