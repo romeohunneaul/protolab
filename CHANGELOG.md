@@ -42,6 +42,9 @@ copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 
 ### Changed
 
+- The lab index (`LabDashboard`) takes the lab panel's look instead of the host's: dark, the
+  panel's type and focus ring, one row per proto, drawn over the host's layout. A proto and the
+  index no longer look alike.
 - `/protolab create` (ADR 0010): the brief is clarified first (the screen, its user, its data, its
   states), then the context is gathered precisely: each element of the screen mapped to a
   component or an existing composition (`/protolab ds`), and the real app read on the scope of the

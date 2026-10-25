@@ -277,7 +277,7 @@ authors do not follow its development.
 | Export | What |
 |---|---|
 | `defineProtos`, `findProto`, `Proto`, `Axis`, `AxisValue`, `Screen`, `Scenario`, `ScenarioValue`, `Loader` | type the manifest, look a proto up |
-| `LabDashboard` | the index page body, server component |
+| `LabDashboard` | the index page, in the lab panel's look and over the host's layout, so it never passes for a proto; server component |
 | `ProtoView` | one proto inside its axes, screens and scenarios, with the lab panel; a client component. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
 | `useAxis`, `useScreen`, `useScenario`, `AxisSlot` | read an axis; read and change the current screen and step; read a scenario's data; render the current value of a structural axis |
 | `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page (`LabPanel` takes `open` and `onOpenChange`) |

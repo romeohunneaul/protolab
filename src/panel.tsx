@@ -21,15 +21,13 @@ import {
   viewportValue,
 } from "./variants";
 import { ExploreTab, type Seed } from "./explore";
+import { CHROME } from "./chrome";
 
 type Ref = { slug: string; name: string; offDs?: boolean };
 type Option = { id: string; label: string };
 type Tab = "Variants" | "Viewport" | "Compare" | "Explore";
 const TABS: Tab[] = ["Variants", "Viewport", "Compare", "Explore"];
 
-// The panel sets what it must not inherit from the host: the font, dark form controls, a focus ring
-// that reads on its dark background.
-const CHROME = "font-sans [color-scheme:dark] [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-sky-400";
 
 /** The viewport presets, the same for every host and every proto; a missing size goes in Custom. */
 export const PRESETS: { label: string; width: number; height: number }[] = [

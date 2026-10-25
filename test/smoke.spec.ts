@@ -8,6 +8,8 @@ test("/lab lists the example protos", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Lab" })).toBeVisible();
   await expect(page.locator('a[href="/lab/p/hello"]')).toBeVisible();
   await expect(page.locator('a[href="/lab/p/flow"]')).toBeVisible();
+  // The index wears the panel's look, not the host's: it must not pass for a proto.
+  await expect(page.getByRole("main")).toHaveCSS("background-color", "rgb(28, 28, 28)");
 });
 
 test("an axis switch from the panel writes the URL, and the URL restores the state", async ({ page }) => {
