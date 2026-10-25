@@ -180,8 +180,8 @@ anything is wrong, no warnings.
 reading list, try the filters in a side panel", "add a compact density", "propose 3 approaches of
 this page", "test with 0, 12 and 500 items". The skills decide whether it is a state axis, a
 structural axis, approaches or a scenario, write it, and give you the link to compare. You do
-not need the vocabulary below; it is here for when you edit a proto by hand. From the lab, the
-`Explore` tab writes that sentence for you, with the proto and its current state.
+not need the vocabulary below; it is here for when you edit a proto by hand. From the lab, under
+`next dev`, the `Explore` tab writes that sentence for you, with the proto and its current state.
 
 Then build inside `src/lab/protos/<slug>/index.tsx` with your own components. What a proto can
 declare on its manifest entry, and how it reads it:
@@ -199,17 +199,18 @@ default (the first value unless `default` says otherwise): a stale link never sh
 state. Switching an axis, a scenario or a size replaces the history entry; moving to a screen or
 a step pushes one. Everything a proto v1 declared keeps working: `kind` absent means `state`.
 
-Every proto page carries the lab panel: a drawer on the right, collapsible, that leaves the proto
-usable. Its header goes back to the index, jumps to another proto, copies the link (`Copy link`)
-or the clean link (`Copy clean link`, the same page with `?lab=0`: no tool at all, what you send
-outside). Four tabs:
+Every proto page carries the lab panel: a drawer on the right, collapsible. Open, it pushes the
+page left by its width in free size (from 640px wide; on a phone it covers the page until you
+collapse it). Its header holds what applies to the whole page: back to the index, jump to another
+proto, copy the link (`Copy link`) or the clean link (`Copy clean link`, the same page with
+`?lab=0`: no tool at all, what you send outside), and the viewport.
 
-| Tab | What it does | In the URL |
+| Where | What it does | In the URL |
 |---|---|---|
-| `Variants` | one selector per declared screen, step, axis and scenario | `?screen=…&step=…&a.…&s.…` |
-| `Viewport` | `Free size`, the presets `Phone` 390 × 844, `Tablet` 768 × 1024, `Laptop` 1280 × 800, `Desktop` 1440 × 900, or a `Custom` size: the clean page renders in an iframe of exactly that size | `?v=390x844` |
-| `Compare` | pick an axis: one cell per value, each an iframe of the clean page at that value, everything else fixed by the link; `Open` leaves with that value | `?compare=density` |
-| `Explore` | one field, "what do you want to try?", in your own words ("try the filters in a side panel", "add a compact density", "propose 3 approaches", "test with 0, 12 and 500 items"), and optionally an element you point at, in the page or in the viewport frame. The lab composes a prompt; Claude Code, opened on the host repo, decides with the skills whether it is a new value, an axis, approaches or a scenario, writes it and gives you the comparison link. `Copy prompt`, or `Open in Claude Desktop`. The `+` next to an axis or a scenario in `Variants` opens it prefilled. The lab never changes the code | nothing: a draft is not lab state |
+| `Viewport`, in the header | `Free size`, the presets `Phone` 390 × 844, `Tablet` 768 × 1024, `Laptop` 1280 × 800, `Desktop` 1440 × 900, or a `Custom` size: the clean page renders in an iframe of exactly that size, never shrunk | `?v=390x844` |
+| `Variants` tab | one field per declared screen, step, axis and scenario: a row of buttons up to four values (arrows switch them), a select beyond | `?screen=…&step=…&a.…&s.…` |
+| `Compare`, next to each axis | one cell per value of that axis, each an iframe of the clean page at that value, everything else fixed by the link; `Open` leaves with that value, `Compare` again leaves the comparison | `?compare=density` |
+| `Explore` tab, under `next dev` only | one field, "what do you want to try?", in your own words ("try the filters in a side panel", "add a compact density", "propose 3 approaches", "test with 0, 12 and 500 items"), and optionally an element you point at, in the page or in the viewport frame. The lab composes a prompt; Claude Code, opened on the host repo, decides with the skills whether it is a new value, an axis, approaches or a scenario, writes it and gives you the comparison link. `Copy prompt`, or `Open in Claude Desktop`. It needs the repo, so a deployed lab hides it; `<ProtoView explore />` forces it. The lab never changes the code | nothing: a draft is not lab state |
 
 The footer sums up the current state. A gesture made inside a frame (a click that moves to a
 screen) is reported to the lab URL, so `Copy link` always copies what is on screen (ADR 0007).
@@ -275,9 +276,9 @@ authors do not follow its development.
 |---|---|
 | `defineProtos`, `findProto`, `Proto`, `Axis`, `AxisValue`, `Screen`, `Scenario`, `ScenarioValue`, `Loader` | type the manifest, look a proto up |
 | `LabDashboard` | the index page body, server component |
-| `ProtoView` | one proto inside its axes, screens and scenarios, with the lab panel; a client component. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides |
+| `ProtoView` | one proto inside its axes, screens and scenarios, with the lab panel; a client component. Pass `protos` (the manifest) to jump between protos, `basePath` if not `/lab`. Optional `annotation` prop for a dev-only toolbar the host provides; `explore` to show the Explore tab outside `next dev` |
 | `useAxis`, `useScreen`, `useScenario`, `AxisSlot` | read an axis; read and change the current screen and step; read a scenario's data; render the current value of a structural axis |
-| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page (`LabPanel` takes `open` and `onOpenChange`) |
+| `VariantProvider`, `LabPanel` | the pieces of `ProtoView`, if you compose your own page (`LabPanel` takes `open`, `onOpenChange` and `explore`) |
 
 ## Copied skills
 

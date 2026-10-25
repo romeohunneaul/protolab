@@ -16,9 +16,10 @@ import { VariantProvider, compareValue, componentOf, isCleanPage, viewportValue 
  * The URL decides the mode: `lab=0` is the clean page (no tool, the link's size applied);
  * otherwise `compare=<axis>` shows the comparison grid, `v=<w>x<h>` the viewport frame, and
  * nothing the proto in the page. Pass the manifest as `protos` so the panel can jump between
- * protos, `basePath` if not `/lab`, and an optional dev-only `annotation` toolbar.
+ * protos, `basePath` if not `/lab`, and an optional dev-only `annotation` toolbar. `explore` shows
+ * the Explore tab; by default only under `next dev`, where the author has the repo and Claude Code.
  */
-export function ProtoView(props: { proto: Proto; protos?: Proto[]; basePath?: string; annotation?: ReactNode }) {
+export function ProtoView(props: { proto: Proto; protos?: Proto[]; basePath?: string; annotation?: ReactNode; explore?: boolean }) {
   // useSearchParams() needs a Suspense boundary above it for the page to prerender.
   return (
     <Suspense fallback={null}>
@@ -27,7 +28,19 @@ export function ProtoView(props: { proto: Proto; protos?: Proto[]; basePath?: st
   );
 }
 
-function View({ proto, protos = [], basePath = "/lab", annotation }: { proto: Proto; protos?: Proto[]; basePath?: string; annotation?: ReactNode }) {
+function View({
+  proto,
+  protos = [],
+  basePath = "/lab",
+  annotation,
+  explore = process.env.NODE_ENV === "development",
+}: {
+  proto: Proto;
+  protos?: Proto[];
+  basePath?: string;
+  annotation?: ReactNode;
+  explore?: boolean;
+}) {
   const params = useSearchParams();
   const clean = isCleanPage(params);
   const size = viewportValue(params);
@@ -46,11 +59,14 @@ function View({ proto, protos = [], basePath = "/lab", annotation }: { proto: Pr
         ) : (
           <>
             {/* With a frame or a grid, the render zone covers the window left of the panel: it escapes the
-                host's layout (each frame already renders it) and scrolls on its own, never under the panel. */}
+                host's layout (each frame already renders it) and scrolls on its own, never under the panel.
+                In free size, the open panel pushes the host's page left by its width (sm:w-80), from 640px up:
+                on <html>, so a host body with a max width centers in what is left instead of shrinking. */}
+            {open && !compared && !size && <style>{"@media (min-width: 640px) { html { padding-right: 20rem; } }"}</style>}
             <div className={compared || size ? `fixed inset-0 z-40 overflow-auto bg-neutral-100 text-neutral-900 ${open ? "sm:right-80" : ""}` : undefined} data-lab-zone>
               {compared ? <CompareGrid axis={compared} size={size} /> : size ? <ViewportFrame width={size.width} height={size.height} /> : <Component />}
             </div>
-            <LabPanel proto={ref(proto)} protos={protos.map(ref)} basePath={basePath} open={open} onOpenChange={setOpen} />
+            <LabPanel proto={ref(proto)} protos={protos.map(ref)} basePath={basePath} open={open} onOpenChange={setOpen} explore={explore} />
           </>
         )}
       </VariantProvider>

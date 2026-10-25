@@ -11,8 +11,6 @@ import { axisValue, scenarioValue, screenValue, stepValue, useLab, viewportValue
 // on the host repo, decides what it is (a value, an axis, approaches, a scenario) with the Protolab
 // skills and writes it. The lab writes no code and calls no service. A draft is not lab state.
 
-export type Seed = { text: string; n: number };
-
 const EXAMPLES = [
   "Try the filters in a side panel instead of above the list",
   "Add a compact density",
@@ -25,13 +23,11 @@ export function ExploreTab({
   basePath,
   compared,
   framed,
-  seed,
 }: {
   proto: { slug: string; name: string };
   basePath: string;
   compared: boolean;
   framed: boolean;
-  seed?: Seed;
 }) {
   const { axes, screens, scenarios } = useLab();
   const params = useSearchParams();
@@ -42,18 +38,6 @@ export function ExploreTab({
   const [failed, setFailed] = useState(false);
   const field = useRef<HTMLTextAreaElement>(null);
   const preview = useRef<HTMLTextAreaElement>(null);
-
-  // A "+" in Variants seeds the field: put its text in, cursor at the end.
-  useEffect(() => {
-    if (!seed) return;
-    setText(seed.text);
-    requestAnimationFrame(() => {
-      const el = field.current;
-      if (!el) return;
-      el.focus();
-      el.setSelectionRange(seed.text.length, seed.text.length);
-    });
-  }, [seed]);
 
   // A state change (screen, step, axis, scenario, size) after a designation clears it: the element may be gone.
   const state = params.toString();

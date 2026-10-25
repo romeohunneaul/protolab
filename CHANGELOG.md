@@ -21,6 +21,25 @@ All notable changes to this project are documented here. The format follows
   what changed since the pinned commit from the changelog, proposes the migrations and the commit.
   The package ships `CHANGELOG.md` for it.
 
+### Changed
+
+- The lab panel, reorganized after the design audit of 2026-10-24:
+  - In free size, the open panel pushes the page left by its width instead of covering it (from
+    640px wide; a phone keeps the panel over the page).
+  - A field with up to four values is a row of buttons, one click to switch, arrows to move; a
+    select beyond.
+  - `Viewport` moves to the header, a select; the `Viewport` and `Compare` tabs are gone.
+  - `Compare` is a button next to each axis; pressed again, it leaves the comparison. The compared
+    axis shows no value checked: every value is on screen.
+  - `Explore` is the only way in to a request: the `+ Add` buttons and `+ Explore a variant` are
+    gone.
+  - `Explore` shows under `next dev` only: it needs the repo and Claude Code. `ProtoView` and
+    `LabPanel` take an `explore` prop to force it.
+
+Existing hosts: nothing to change. A deployed lab no longer shows `Explore`; pass
+`<ProtoView explore />` to keep it. A host test that drove the panel's selects, the `Viewport` or
+`Compare` tab, or `+ Add` needs its selectors updated.
+
 ### Fixed
 
 - Viewport and comparison frames keep their exact size: a frame wider than the render zone was
