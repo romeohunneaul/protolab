@@ -56,6 +56,7 @@ custom CSS:
 
 - compose with existing components when a faithful composition exists (chips as tabs), and say so;
 - or use a library listed in `ds.offDs`, and mark the proto `offDs: true` in the manifest;
+- in `/protolab diverge`, build it as a design-system candidate (diverge, section 2);
 - otherwise ask (`AskUserQuestion`) whether a fallback is acceptable.
 
 ## What this command does not do

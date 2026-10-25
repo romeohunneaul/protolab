@@ -69,8 +69,18 @@ Then write `<protosDir>/<slug>/context.md`, short, so the other commands start f
 gathering again:
 
 - the question the proto answers, in one line, and the brief's path;
-- each element of the screen and what covers it (component and import, composition and file, or
-  gap);
+- a **Blocks** table, one row per block of the screen:
+
+  | Block | Role | Pattern | Covered by |
+  |---|---|---|---|
+  | What it keeps, what it adds | the reader sees which parts of a page the tool changes | comparison table | `Table`, `Badge` |
+  | Setup | the reader follows the install in order | stepper | `Steps`, `Code` |
+  | Empty list | the reader knows what to do first | empty state | `EmptyState` (composition: `app/notes/page.tsx`) |
+
+  The role is what the reader must understand or do. The pattern is a standard name: comparison
+  table, list, card grid, bento, stepper, tabs or switcher, hotspots, timeline, form, chart, empty
+  state. Covered by: the components and their import, an existing composition and its file, or
+  **gap**;
 - the sources of the data: the types and files it mirrors, with their paths;
 - what the proto leaves out on purpose (the plumbing above, the open questions).
 
@@ -113,6 +123,8 @@ Then, depending on the request:
   never valid.
 - **Never invent** a component, a prop or a class: check with `/protolab ds`.
 - **Never invent a data shape the app already has**: copy it from the scope (step 3).
-- **Custom CSS = last resort**, with the project's classes or tokens only, after validation.
+- **Custom CSS = last resort**, with the project's classes or tokens only, after validation. A
+  piece the design system lacks is a **gap** in the Blocks table, not a component built here;
+  `/protolab diverge` may build it as a design-system candidate.
 - The proto is **throwaway and outside production** (the lab is `noindex`): no tests, no
   exhaustive accessibility required unless the user asks.

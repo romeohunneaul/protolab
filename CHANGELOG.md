@@ -42,6 +42,16 @@ copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 
 ### Changed
 
+- `/protolab create` writes a **Blocks** table in `context.md`: one row per block, its role (what
+  the reader must understand or do), its pattern under a standard name (comparison table, stepper,
+  hotspots, bento…) and what covers it. The design system stays its limit: a missing piece is a gap.
+- `/protolab diverge` starts from that table and changes the block's pattern or representation
+  (abstract text, a real specimen annotated, visualized data), not only its layout. Mobbin
+  references are required when the tool is there, and name the patterns. A piece the design system
+  lacks is built in the proto, with the host's tokens only and without asking, as a
+  `candidate-<piece>.tsx`; at convergence the kept candidates are proposed to the design system,
+  through a PR in its repo. `rules/proto.md` says the custom-CSS question holds for `create` and
+  `variant`, not for these candidates.
 - The lab index (`LabDashboard`) takes the lab panel's look instead of the host's: dark, the
   panel's type and focus ring, one row per proto, drawn over the host's layout. A proto and the
   index no longer look alike.

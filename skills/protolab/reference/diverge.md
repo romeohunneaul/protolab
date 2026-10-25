@@ -1,26 +1,37 @@
 # Diverge, then converge
 
 Divergence is how the lab compares directions before choosing one: each approach is a full,
-working version built with the host's components, and the comparison view shows them side by
-side at the same size and the same state. No design canvas: everything lives in the host repo.
+working version built with the host's components and tokens, and the comparison view shows them
+side by side at the same size and the same state. No design canvas: everything lives in the host
+repo. Diverging changes how a block works, not only how it is arranged.
 
 ## 1. Frame the divergence
 
 - **The question**: one line, what the user decides by comparing (`Which hero gets a CFO to start
   a trial?`). It opens the root file as a comment and the recap. Without it, the approaches drift
   into taste.
-- **What diverges**: a block (the hero, the filters, the list) or the whole screen. Name the axis
-  after it: `hero`, `filters`, `layout`; `approach` when the whole screen diverges.
+- **What diverges**: start from the Blocks table of the proto's `context.md`. Name the block and
+  its current pattern (`What it keeps, what it adds: comparison table`), or the whole screen.
+  Without a `context.md` (an older proto), write the block's row first: role, pattern, covered by.
+  Name the axis after the block: `hero`, `filters`, `keeps-adds`; `approach` for the whole
+  screen.
 - **How many**: the number the user asked for, 3 otherwise. Never more than 5: beyond that the
   grid stops being readable.
-- **The directions**: each approach answers a different hypothesis about what the user of the
-  screen needs, not a cosmetic change. Write one line per approach before coding:
-  `<label>: <the hypothesis>` (`KPI first: the CFO decides on numbers`; `Zero error: the ops
-  lead fears mistakes`). Take them from the brief, the jobs or the user's words; when the request
-  is open, propose them.
-- **References** (optional): if a Mobbin tool is available (`search_screens`, `search_flows`),
-  look at how two or three products solve the same screen and say what each approach borrows.
-  Mobbin informs; it never replaces the host's components.
+- **The directions**: each approach changes the **pattern** or the **representation** of the
+  block, not only its layout:
+  - another pattern: comparison table → hotspots, list → bento, tabs → stepper;
+  - another representation: abstract text, a real specimen (a sample page annotated with
+    hotspots), visualized data (a chart, a diagram).
+
+  Two approaches with the same pattern and the same representation are one approach. Write one
+  line per approach before coding: `<label>: <pattern>, <representation>: <hypothesis>`
+  (`Annotated page: hotspots, real specimen: the reader trusts what they see on a real page`).
+  Take the hypotheses from the brief, the jobs or the user's words; when the request is open,
+  propose them.
+- **References**, required when a Mobbin tool is available (`search_screens`, `search_sections`,
+  `search_flows`): search the block's role, keep two or three products that solve it differently,
+  and take the pattern names from them. Each approach says which reference it borrows from.
+  Without the tool, say so and use the standard names of `/protolab create` (the Blocks table).
 - **In place**: when the block belongs to a page of the app, the proto renders that page around it
   with the host's components (its header, its navigation, the neighbouring blocks) and a real
   density of data. A block alone on an empty page looks right in every approach. When the data is
@@ -54,12 +65,15 @@ section 3, for the exact shapes):
   (`/protolab variant`, section 3): every existing value places the new slot, so each approach
   combines with each existing value.
 - Keep the existing axes, values and ids: never remove one to make room for the approaches.
-- The approaches differ in layout, in information hierarchy and in primary action (where the eye
-  and the first click go), never only in colour or copy. All use the design system. An approach
-  that needs a library outside it is allowed only if `ds.offDs` lists it; the proto then gets
-  `offDs: true`.
-- Before handing over, compare the approaches: when two share the layout and the primary action,
-  redo one and name the pattern it must not use (`no card grid`).
+- The approaches differ in pattern or representation, and so in information hierarchy and in
+  primary action (where the eye and the first click go), never only in colour or copy.
+- The design system's components come first. **A piece it lacks** (a pin, a drawn box, a tag) is
+  built in the proto without asking: one file per piece, `candidate-<piece>.tsx`, opening with
+  `// Design system candidate: <what it is, what it would extend>`, styled with the host's tokens
+  and utility classes only. A new colour, font or dependency is still asked first; a library
+  outside the design system only if `ds.offDs` lists it, and the proto then gets `offDs: true`.
+- Before handing over, compare the approaches: when two share the pattern and the
+  representation, redo one and name the pattern it must not use (`no comparison table`).
 
 ## 3. Verify, then hand over
 
@@ -67,7 +81,8 @@ section 3, for the exact shapes):
 2. Give the comparison links with a size, desktop and phone:
    `<basePath>/p/<slug>?compare=<key>&v=1280x800` and `…&v=390x844`. Without a size, the cells
    are narrow and the proto shows its narrow layout.
-3. Recap: the question, then one line per approach: label, hypothesis, what to look at.
+3. Recap: the question, then one line per approach: label, pattern and representation,
+   hypothesis, the reference it borrows from, the candidates it builds, what to look at.
 4. Ask for a verdict in the user's words. A mix ("the header of B with the list of C") is often
    the most useful answer.
 
@@ -85,8 +100,12 @@ When the user keeps one approach ("on garde la B", "keep zero-error"), or a mix:
 5. Links that carried the removed values fall back to the default: say so.
 6. Write down the verdict: the approach kept, why, and the question it settled. It goes in the
    commit message, and in the proto's brief when the entry declares one, as a line the user
-   accepts.
-7. `npx protolab-check` and the typecheck, then the proto's link.
+   accepts. Update the block's row in `context.md`: its new pattern, what covers it.
+7. List the design-system candidates the kept approach uses (`candidate-*.tsx`): what each one is,
+   where it would go in the design system. Propose to add them to the design system through a PR
+   in its own repo; the proto keeps its copy until the design system ships them. The candidates
+   of the dropped approaches go with them.
+8. `npx protolab-check` and the typecheck, then the proto's link.
 
 ## Rules
 

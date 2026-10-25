@@ -15,7 +15,8 @@ no route outside the lab), nor an HTML mock-up, nor a component of the design sy
   index.tsx              # default export: the proto's root component
   <axis>-<value>.tsx     # one per value of a structural axis (optional)
   data.ts                # its data: constants, and the data sets of its scenarios (optional)
-  context.md             # what /protolab create read: elements, components, data sources (optional)
+  context.md             # what /protolab create read: blocks, components, data sources (optional)
+  candidate-<piece>.tsx  # a piece the design system lacks, built by /protolab diverge (optional)
 ```
 
 ```tsx
@@ -44,6 +45,7 @@ order); `load` imports `./protos/<slug>`.
 | Structural value | `<axis key>-<value id>.tsx`, default export, no props | `filters-side.tsx` | a value inlined in `index.tsx` |
 | Keys and ids | kebab-case, named after what varies | `density`, `side-panel`, `500` | `Density`, `axis1`, `sidePanel` |
 | Pieces of the proto | in the proto's folder | `invoice-list/row.tsx` | in `componentsDir` |
+| Design-system candidate | `candidate-<piece>.tsx`, first line `// Design system candidate: …` | `showcase/candidate-pin.tsx` | a piece hidden in `index.tsx` or in a value's file |
 
 ## Rules
 
@@ -62,6 +64,10 @@ order); `load` imports `./protos/<slug>`.
 - Styling: the host's components, utility classes and tokens. Layout utilities (grid, flex,
   spacing, `sticky`, borders) with the host's tokens are fine. Custom CSS, to ask before writing,
   is anything else: a new colour, font, shadow or class, an inline style, a restyled component.
+  This holds for `/protolab create` and `/protolab variant`. In `/protolab diverge`, a piece the
+  design system lacks may be built with the host's tokens and utility classes, without asking, as
+  a design-system candidate, and is reported in the recap; a new colour, font or dependency is
+  still asked first.
 - Responsive breakpoints are the host's; never tune them to the lab's comparison cells.
 - The proto calls no service: its data is in its folder (`data.ts`, deterministic). It adds no
   dependency to the host.
