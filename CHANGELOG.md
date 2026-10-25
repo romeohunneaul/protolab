@@ -42,6 +42,9 @@ copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 
 ### Changed
 
+- The lab index (`LabDashboard`) takes the lab panel's look instead of the host's: dark, the
+  panel's type and focus ring, one row per proto, drawn over the host's layout. A proto and the
+  index no longer look alike.
 - `/protolab diverge` takes what fits the lab from `prototype` in mattpocock/skills (MIT): one
   question before the approaches, the approaches judged inside their real page, a self-check that
   two approaches do not share layout and primary action, a mixed verdict built as a new value,
