@@ -45,6 +45,13 @@ copy from `npx impeccable install` in `.claude/skills/impeccable` is replaced.
 - The lab index (`LabDashboard`) takes the lab panel's look instead of the host's: dark, the
   panel's type and focus ring, one row per proto, drawn over the host's layout. A proto and the
   index no longer look alike.
+- `/protolab create` (ADR 0010): the brief is clarified first (the screen, its user, its data, its
+  states), then the context is gathered precisely: each element of the screen mapped to a
+  component or an existing composition (`/protolab ds`), and the real app read on the scope of the
+  screen (its page, its types, its fixtures) so the data mirrors the app's shape, without its
+  plumbing (no fetch, no auth, no error handling). It writes `context.md` in the proto's folder;
+  the other commands start from it. New optional config key `app`: the path to the real app when
+  the protos live in a repo of their own.
 - `/protolab diverge` takes what fits the lab from `prototype` in mattpocock/skills (MIT): one
   question before the approaches, the approaches judged inside their real page, a self-check that
   two approaches do not share layout and primary action, a mixed verdict built as a new value,

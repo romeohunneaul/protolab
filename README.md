@@ -12,7 +12,7 @@ proto, `impeccable` for its design. Each is a set of commands:
 
 | Command | Ask it to |
 |---|---|
-| `/protolab create` | create a proto from an intent, a brief, the jobs, your design system |
+| `/protolab create` | create a proto from a clarified brief, each element mapped to your design system, its data shaped like your app's |
 | `/protolab variant` | add states, a competing version of a block (a structural axis), screens and steps |
 | `/protolab diverge` | build N approaches of a screen or a block to compare side by side, then keep one |
 | `/protolab scenarios` | add data sets: volumes, roles, personas, the worst case |
@@ -75,7 +75,10 @@ read from `protolab.config.json` if you create it first (defaults shown):
 
 `ds.docs` is read by the skills before they write a proto; `ds.offDs` lists the libraries a
 proto may use outside your design system, and `protolab-check` refuses `offDs: true` on a proto
-when the list is empty. The engine never reads this file at runtime.
+when the list is empty. When your protos live in a repo of their own, add `"app": "../my-app"`, the
+path to the real app: `/protolab create` reads the scope of the screen there (its page, its types
+and data, its fixtures) to shape the proto like the app; without it, it reads this repo. The engine
+never reads this file at runtime.
 
 <details>
 <summary>What protolab-init writes, if you prefer to wire it by hand</summary>
